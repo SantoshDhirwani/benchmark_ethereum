@@ -2,7 +2,7 @@
 
 NETWORK_ID=$1
 
-rm rf .ethereum/ genesis.com
+rm rf .ethereum/ genesis.json
 
 # create new key
 geth --datadir .ethereum/ account new --password password
