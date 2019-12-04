@@ -8,6 +8,7 @@ rm rf .ethereum/ genesis.json
 geth --datadir .ethereum/ account new --password password
 
 # build genesis
+rm -rf .puppeth
 printf "2\n1\n2\n15\n${ACCOUNT}\n\n${ACCOUNT}\n\nyes\n${NETWORK_ID}\n2\n2\n\n" | puppeth --network genesis
 
 # init genesis
