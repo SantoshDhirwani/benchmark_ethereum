@@ -19,21 +19,14 @@ cd ~/cp_ws_1920/Docker
  docker tag ether-node gcr.io/totemic-carrier-259013/ether-node 
  docker push gcr.io/totemic-carrier-259013/ether-node
 
-
-
-
 #bootnode
 #build your image locally giving a tag for its repository
  docker  build bootnode --tag bootnode
- gcloud auth configure-docker
  docker tag bootnode gcr.io/totemic-carrier-259013/bootnode 
  docker push gcr.io/totemic-carrier-259013/bootnode
-
-
 
 #sealer-node
 #build your image locally giving a tag for its repository
  docker  build sealer-node --tag sealer-node
- gcloud auth configure-docker
  docker tag sealer-node gcr.io/totemic-carrier-259013/sealer-node
  docker push gcr.io/totemic-carrier-259013/sealer-node
