@@ -35,4 +35,3 @@ docker tag caliper gcr.io/totemic-carrier-259013/caliper
 docker push gcr.io/totemic-carrier-259013/caliper
 
 echo all images pushed succesfully!
-
