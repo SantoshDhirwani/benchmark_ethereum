@@ -9,7 +9,7 @@
  cd ../Docker/ether-node
  docker build ether-node  --tag ether-node
 
-#connect with you creditentials to your google cloud account, and make sure the billing is enabled
+#connect with you credentials to your google cloud account, and make sure the billing is enabled
  gcloud auth configure-docker
  docker tag ether-node gcr.io/totemic-carrier-259013/ether-node 
  docker push gcr.io/totemic-carrier-259013/ether-node
@@ -27,3 +27,9 @@
  docker  build sealer-node --tag sealer-node
  docker tag sealer-node gcr.io/totemic-carrier-259013/sealer-node
  docker push gcr.io/totemic-carrier-259013/sealer-node
+
+  cd ../Docker/sealer-node
+ docker  build sealer-node --tag caliper
+ docker tag sealer-node gcr.io/totemic-carrier-259013/caliper
+ docker push gcr.io/totemic-carrier-259013/caliper
+
