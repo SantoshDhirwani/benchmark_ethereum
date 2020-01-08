@@ -1,6 +1,9 @@
+from __future__ import print_function
 import os
-import logging
 import subprocess
+
+
+current_folder = os.path.dirname(os.path.abspath(__file__))
 
 
 def run_file(file_path):
@@ -31,8 +34,14 @@ def run_file(file_path):
 
 if __name__ == '__main__':
     files = [
-        ['python', 'aggregate-html-reports.py'],
-        ['bash', 'build-tag-push-docker-image.sh'],
+        ['python', os.path.join(
+            current_folder,
+            'aggregated-reports/aggregate-html-reports.py',
+        )],
+        ['bash', os.path.join(
+            current_folder,
+            'build-tag-push-docker-image.sh',
+        )],
     ]
 
     for f in files:
