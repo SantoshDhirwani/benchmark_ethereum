@@ -36,7 +36,7 @@ if __name__ == '__main__':
     files = [
         ['python', os.path.join(
             current_folder,
-            'aggregated-reports/aggregate-html-reports.py',
+            'aggregate-reports/aggregate-html-reports.py',
         )],
         ['bash', os.path.join(
             current_folder,
