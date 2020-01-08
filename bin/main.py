@@ -1,9 +1,27 @@
 from __future__ import print_function
 import os
+import json
 import subprocess
 
 
-current_folder = os.path.dirname(os.path.abspath(__file__))
+CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
+CONFIG_PATH = os.path.join(CURRENT_FOLDER, 'config.json')
+
+
+def _get_path(filename):
+    return os.path.join(CURRENT_FOLDER, filename)
+
+
+def load_number_of_nodes(path):
+    with open(path) as fp:
+        config = json.load(fp)
+
+    try:
+        return config['parameters']['nodesNumber']
+    except KeyError:
+        message = "You have an incorrect config structure: {}"
+        reason = "Can't load value from path 'parameters/nodesNumber'"
+        raise KeyError(message.format(reason))
 
 
 def run_file(file_path):
@@ -22,7 +40,7 @@ def run_file(file_path):
             if return_code:
                 raise Exception(
                     'File "{}" was not finished successfully'.format(
-                        file_path[-1],
+                        file_path[1],
                     )
                 )
 
@@ -33,15 +51,13 @@ def run_file(file_path):
 
 
 if __name__ == '__main__':
+    number_of_nodes = load_number_of_nodes(CONFIG_PATH)
+
     files = [
-        ['python', os.path.join(
-            current_folder,
-            'aggregate-reports/aggregate-html-reports.py',
-        )],
-        ['bash', os.path.join(
-            current_folder,
-            'build-tag-push-docker-image.sh',
-        )],
+        ['python', _get_path('aggregate-reports/aggregate-html-reports.py')],
+        ['bash', _get_path('build-tag-push-docker-image.sh')],
+        ['python', _get_path('create_vms_as_nodes.py'),
+         '--nodes', str(number_of_nodes)]
     ]
 
     for f in files:
