@@ -5,21 +5,21 @@
 NUMBER_NODES=${1}
 BLOCK_INTERVAL=${2}
 BLOCK_SIZE=${3}
-INSTANCE_GROUP_NAME=ethereum-sut-group
+INSTANCE_GROUP_NAME=ethereum-sut-group-1
 BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=ethereum-sut-template
 
 NETWORK_ID=123
 
 # clean previous sut
-echo deleting previous setup this might take some time...
+echo DELETING PREIVOUS SETUP, THIS MIGHT TAKE SOME TIME...
 echo
 echo | gcloud compute instance-groups managed delete ${INSTANCE_GROUP_NAME}
 echo | gcloud compute instances delete ${BOOT_NODE_NAME}
 
 # run bootnode
 gcloud compute instances create ${BOOT_NODE_NAME} --source-instance-template ${INSTANCE_TEMPLATE}
-echo sleeping for 60 seconds to make sure bootnode is up!
+echo SLEEPING FOR 60 SECONDS TO MAKE SURE BOOTNODE IS UP!
 sleep 60
 
 IP_BOOTNODE=$(gcloud compute instances list --filter="name~${BOOT_NODE_NAME}" --format='value(INTERNAL_IP)')
@@ -27,9 +27,8 @@ gcloud compute ssh ${BOOT_NODE_NAME} --command "nohup bootnode -genkey boot.key 
 key=$(gcloud compute ssh ${BOOT_NODE_NAME} --command "cat boot.key")
 hex=$(gcloud compute ssh ${BOOT_NODE_NAME} --command "nohup bootnode -nodekeyhex $key -writeaddress")
 BOOTNODE_ENODE=enode://${hex}@${IP_BOOTNODE}?discport=30310
-echo $BOOTNODE_ENODE
 
-echo the boot node enode adress is: ${BOOTNODE_ENODE}
+echo THE BOOTNODE ENODE ADDRESS IS: ${BOOTNODE_ENODE}
 
 # create instance group of sealer nodes
 
@@ -38,7 +37,7 @@ gcloud compute instance-groups managed create ${INSTANCE_GROUP_NAME} \
    --size ${NUMBER_NODES} \
    --template ${INSTANCE_TEMPLATE}
 
-echo sleeping for 60 seconds to make sure instances are up!
+echo SLEEPING FOR 60 SECONDS TO MAKE SURE INSTANCES ARE UP!
 sleep 60
 
 prefix=$(gcloud compute instance-groups managed list --format='value(baseInstanceName)' --filter='name~^'${INSTANCE_GROUP_NAME}'')
@@ -46,9 +45,9 @@ INSTANCE_LIST=( $(gcloud compute instances list --filter="name~^${prefix}" --for
 ACCOUNT_LIST=()
 
 # create accounts on nodes
-
+echo CREATING ACCOUNTS ON NODES
 for index in ${!INSTANCE_LIST[@]}; do
-    echo creating geth account on ${INSTANCE_LIST[index]}
+    echo CREATING GETH ACCOUNT ON ${INSTANCE_LIST[index]}
     gcloud compute ssh ${INSTANCE_LIST[index]} --command "echo password >> password && geth --datadir .ethereum/ account new --password password"
     ACCOUNT=$(gcloud compute ssh ${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ account list | cut -d "{" -f2 | cut -d "}" -f1")
     ACCOUNT_LIST[index]=${ACCOUNT}
@@ -68,7 +67,7 @@ gaslimit=$(printf '%x\n' ${BLOCK_SIZE})
 jq -c ".gasLimit = \"0x${gaslimit}\"" genesis.json > tmp.$$.json && mv tmp.$$.json genesis.json
 
 for index in ${!INSTANCE_LIST[@]}; do
-    echo genesis init on ${INSTANCE_LIST[index]}
+    echo GENESIS INIT ON ${INSTANCE_LIST[index]}
     gcloud compute scp genesis.json ${INSTANCE_LIST[index]}:~/genesis.json
     gcloud compute ssh ${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ init genesis.json"
     ACCOUNT=$(gcloud compute ssh ${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ account list | cut -d "{" -f2 | cut -d "}" -f1")
