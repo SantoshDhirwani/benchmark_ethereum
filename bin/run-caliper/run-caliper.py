@@ -16,7 +16,7 @@ def update_json(filename):
     data["ethereum"]["fromAddress"]= nodeaddress
     data["ethereum"]["fromAddressPassword"]= nodepassword
 
-    with open("/hyperledger/caliper/workspace/network.json", "w") as jsonFile:
+    with open(os.environ['HOME']+"/hyperledger/caliper/workspace/network.json", "w") as jsonFile:
         json.dump(data, jsonFile)
 
 def main():
