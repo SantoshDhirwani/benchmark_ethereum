@@ -25,7 +25,8 @@ def main():
     update_json(networkfile)
 
     #run the caliper
-    os.system("run-caliper.sh")
+    bashfile = "run-caliper.sh"
+    os.system("bash " + bashfile)
     exit()
 
 if __name__ == '__main__':
