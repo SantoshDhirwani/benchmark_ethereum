@@ -4,6 +4,7 @@
 
 NUMBER_NODES=${1}
 BLOCK_INTERVAL=${2}
+BLOCK_SIZE=${3}
 INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=ethereum-sut-template
