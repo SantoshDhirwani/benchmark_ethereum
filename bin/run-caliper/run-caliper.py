@@ -2,7 +2,7 @@ import json
 import os
 
 def update_json(filename):
-    ipaddress = input("Please type your node's IP (with http or https): ")
+    ipaddress = raw_input("Please type your node's IP (with http or https): ")
     port = input("Please type your used port: ")
     nodeaddress = input("Type your node address : ")
     nodepassword = input("Type your node address password: ")
