@@ -1,22 +1,26 @@
 import json
 import os
+import argparse
 
 def update_json(filename):
-    ipaddress = input("Please type your node's IP (with http or https): ")
-    port = input("Please type your used port: ")
-    nodeaddress = input("Type your node address : ")
-    nodepassword = input("Type your node address password: ")
+    parser = argparse.ArgumentParser(description="This script is for running caliper benchmark")
+    parser.add_argument("--ipaddress", help="IP Address of the node SUT", required=True)
+    parser.add_argument("--port", help="Used port", required=True)
+    parser.add_argument("--account", help="The account of the node", required=True)
+    parser.add_argument("--password", help="Password for the account", required=True)
+
+    args = parser.parse_args()
 
     with open(filename, 'r') as read_file:
         data = json.load(read_file)
         
-    data["ethereum"]["url"] = ipaddress+":"+port
-    data["ethereum"]["contractDeployerAddress"]= nodeaddress
-    data["ethereum"]["contractDeployerAddressPassword"]= nodepassword
-    data["ethereum"]["fromAddress"]= nodeaddress
-    data["ethereum"]["fromAddressPassword"]= nodepassword
+    data["ethereum"]["url"] = args.ipaddress+":"+args.port
+    data["ethereum"]["contractDeployerAddress"]= args.account
+    data["ethereum"]["contractDeployerAddressPassword"]= args.password
+    data["ethereum"]["fromAddress"]= args.account
+    data["ethereum"]["fromAddressPassword"]= args.password
 
-    with open(os.environ['HOME']+"/hyperledger/caliper-workspace/network.json", "w") as jsonFile:
+    with open('config/network.json', "w") as jsonFile:
         json.dump(data, jsonFile, indent=4)
 
 def main():
