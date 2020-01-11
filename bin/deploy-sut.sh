@@ -25,8 +25,8 @@ echo SLEEPING FOR 60 SECONDS TO MAKE SURE BOOTNODE IS UP!
 sleep 60
 
 IP_BOOTNODE=$(gcloud compute instances list --filter="name~${BOOT_NODE_NAME}" --format='value(INTERNAL_IP)')
-gcloud compute ssh ${USERNAME}@${BOOT_NODE_NAME} --command "nohup bootnode -genkey boot.key"
-gcloud compute ssh ${USERNAME}@${BOOT_NODE_NAME} --command "bootnode -nodekey boot.key -addr 0.0.0.0:30310 >> exec.log &"
+gcloud compute ssh ${USERNAME}@${BOOT_NODE_NAME} --command "bootnode -genkey boot.key"
+gcloud compute ssh ${USERNAME}@${BOOT_NODE_NAME} --command "nohup bootnode -nodekey boot.key -addr 0.0.0.0:30310 >> exec.log &"
 key=$(gcloud compute ssh ${USERNAME}@${BOOT_NODE_NAME} --command "cat boot.key")
 hex=$(gcloud compute ssh ${USERNAME}@${BOOT_NODE_NAME} --command "nohup bootnode -nodekeyhex $key -writeaddress")
 BOOTNODE_ENODE=enode://${hex}@${IP_BOOTNODE}:30310?discport=30310
@@ -59,12 +59,16 @@ done
 ACCOUNT_STRING=""
 
 for index in ${!ACCOUNT_LIST[@]}; do
-    ACCOUNT_STRING+="${ACCOUNT_LIST[index]}\\n\\n"
+    ACCOUNT_STRING+="${ACCOUNT_LIST[index]}\\n"
 done
+ACCOUNT_STRING+="\\n"
+
+echo ---- ACCOUNTS CREATED ----
 echo ${ACCOUNT_STRING}
+echo ---- PREPARING GENESIS FILE ----
 rm -rf ~/.puppeth
 rm -f genesis.json genesis-harmony.json
-printf "2\n1\n2\n${BLOCK_INTERVAL}\n${ACCOUNT_STRING}yes\n${NETWORK_ID}\n2\n2\n\n" | puppeth --network genesis
+printf "2\n1\n2\n${BLOCK_INTERVAL}\n${ACCOUNT_STRING}${ACCOUNT_STRING}yes\n${NETWORK_ID}\n2\n2\n\n" | puppeth --network genesis
 
 gaslimit=$(printf '%x\n' ${BLOCK_SIZE})
 jq -c ".gasLimit = \"0x${gaslimit}\"" genesis.json > tmp.$$.json && mv tmp.$$.json genesis.json
@@ -75,6 +79,6 @@ for index in ${!INSTANCE_LIST[@]}; do
     gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ init genesis.json"
     ACCOUNT=$(gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ account list | cut -d "{" -f2 | cut -d "}" -f1")
     #start the node
-    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --datadir .ethereum/ --syncmode 'full' --port 30311 --rpc --rpcaddr '0.0.0.0' --rpcport 8501 --rpcapi 'personal,db,eth,net,web3,txpool,miner' --bootnodes \"${BOOTNODE_ENODE}\" --networkid ${NETWORK_ID} --gasprice '1' -unlock ${ACCOUNT} --password password --allow-insecure-unlock --nousb --mine 2> exec.log &"
+    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "nohup geth --datadir .ethereum/ --syncmode 'full' --port 30311 --rpc --rpcaddr '0.0.0.0' --rpcport 8501 --rpcapi 'personal,db,eth,net,web3,txpool,miner' --bootnodes \"${BOOTNODE_ENODE}\" --networkid ${NETWORK_ID} --gasprice '1' -unlock ${ACCOUNT} --password password --allow-insecure-unlock --nousb --mine 2> exec.log"
 done
 exit 0
