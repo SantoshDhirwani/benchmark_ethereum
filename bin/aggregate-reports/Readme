@@ -1,0 +1,7 @@
+Prerequisite
+Python 
+pandas library
+
+How to Run
+To run the script go to directory and enter python aggregate-html-reports.py and new csv will be generated
+
