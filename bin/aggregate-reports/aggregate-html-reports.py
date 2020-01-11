@@ -1,8 +1,5 @@
 import glob
-import time
 from fpdf import FPDF
-import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
 
 
