@@ -43,3 +43,4 @@ for key, item in tempcheck:
     dat=pd.concat([dat,tempcheck.get_group(key)], ignore_index=True)     
 
 dat.to_csv('data.csv',index=False)
+exit(0)
