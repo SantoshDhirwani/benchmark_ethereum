@@ -1,16 +1,16 @@
 import glob
 import pandas as pd
 
-
-
-directory = '*.html'   
-files=glob.glob(directory)
+reportsDir = 'caliper-reports/*.html'
+resultsDir = 'aggregated-results/'
+files = glob.glob(reportsDir)
 
 my_tables = []
 for file in files:     
     tables = pd.read_html(file)
     temp = tables[0]
-    temp['fileName'] = file 
+    temp['fileName'] = file.split('/')[-1]
+    print(temp['fileName'])
     my_tables.append(temp)
 temp = my_tables[0][['Name']].values.tolist()	
 name = my_tables[0][['Name']]	
@@ -35,11 +35,11 @@ dat = pd.DataFrame()
 for key, item in tempcheck:
     dat=pd.concat([dat,tempcheck.get_group(key)], ignore_index=True)
 #create overall report
-dat.to_csv('data.csv',index=False)
+dat.to_csv(resultsDir + 'data.csv',index=False)
 
 #create seperate fille for each function
 for name in dat['Name'].unique():
-    file_name = 'data_{0}.csv'.format(name)
+    file_name = resultsDir + 'data_{0}.csv'.format(name)
     dat[dat['Name']==name].to_csv(file_name,index=False)
 
 exit(0)
