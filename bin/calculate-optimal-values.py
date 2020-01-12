@@ -16,13 +16,13 @@ x = np.arange(minInterval, maxInterval + intervalStep, intervalStep)
 y = np.arange(minGasLimit, maxGasLimit + gasLimitStep, gasLimitStep)
 
 xx, yy = np.meshgrid(x, y)
-#df = pd.read_csv(resultsDir + 'data_transfer.csv')
+
 with open(resultsDir + 'data_grid.csv', 'r') as f:
     l = [[int(num) for num in line.split(',')] for line in f]
 print(l)
 z = np.array(l).flatten()
 print(z)
-#z = np.sin(xx**2+yy**2)
+
 f = interpolate.interp2d(x, y, z, kind='cubic')
 
 xnew = np.arange(minInterval, maxInterval + intervalStep, 1)
