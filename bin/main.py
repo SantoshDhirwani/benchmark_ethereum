@@ -6,10 +6,13 @@ import subprocess
 
 CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
+
 def _get_path(filename):
     return os.path.join(CURRENT_FOLDER, filename)
 
+
 CONFIG_PATH = os.path.join(_get_path('../config'), 'config.json')
+
 
 def load_config(path):
     print('Reading user configuration...')
@@ -63,6 +66,7 @@ if __name__ == '__main__':
         for gas in gasLimit:
             print('Building SUT with block interval ' + str(interval) + 's and ' + str(gas) + ' block gas limit')
             run_file(['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval), str(gas)])
-            #run_file(['python3'],_get_path('run_caliper.py'), ...)
+            #run_file(['python'],_get_path('run_caliper.py'), ...)
     print('Aggregating all the workload reports')
-    run_file(['python', _get_path('aggregate-reports/aggregate-html-reports.py')])    
+    run_file(['python', _get_path('aggregate-html-reports.py')])
+    run_file(['python', _get_path('calculate-optimal-values.py')])
