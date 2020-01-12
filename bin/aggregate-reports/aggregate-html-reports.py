@@ -1,18 +1,15 @@
 import glob
 import time
-from fpdf import FPDF
-import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
 
 
-document = FPDF()
-document.add_page() 
-document.set_font("Arial", size=7) 
+#document = FPDF()
+#document.add_page()
+#document.set_font("Arial", size=7)
 directory = '*.html'   
 files=glob.glob(directory)
-col_width = (document.w - 2*document.l_margin)/5
-document.ln(12)
+#col_width = (document.w - 2*document.l_margin)/5
+#document.ln(12)
 my_tables = []
 for file in files:     
     tables = pd.read_html(file)
