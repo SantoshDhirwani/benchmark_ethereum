@@ -1,10 +1,7 @@
-Name,Succ,Fail,Send Rate (TPS),Max Latency (s),Min Latency (s),Avg Latency (s),Throughput (TPS),fileName,ExperimentNo,gasLimit,blockSize
+Name,Succ,Fail,Send Rate (TPS),Max Latency (s),Min Latency (s),Avg Latency (s),Throughput (TPS),fileName,ExperimentNo,gasLimit,blockInterval
 open,100,0,50.6,4.2,2.15,3.59,18.9,2second-8000000.html,0,8000000.0,2.0
 open,100,0,50.6,4.31,2.2,3.56,18.2,2second-16000000.html,1,16000000.0,2.0
 open,100,0,50.6,5.07,2.52,4.06,16.0,2second-4000000.html,2,4000000.0,2.0
-query,100,0,101.3,0.4,0.05,0.18,84.7,2second-8000000.html,0,8000000.0,2.0
-query,100,0,101.3,0.47,0.06,0.22,80.6,2second-16000000.html,1,16000000.0,2.0
-query,100,0,101.2,0.31,0.05,0.15,92.0,2second-4000000.html,2,4000000.0,2.0
 transfer,100,0,50.5,10.33,6.3,8.96,9.3,2second-8000000.html,0,8000000.0,2.0
 transfer,100,0,50.4,5.3,2.9,4.05,15.5,2second-16000000.html,1,16000000.0,2.0
 transfer,100,0,50.5,5.45,3.17,4.42,16.0,2second-4000000.html,2,4000000.0,2.0
