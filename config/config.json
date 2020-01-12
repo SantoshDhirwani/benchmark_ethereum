@@ -1,0 +1,13 @@
+{
+    "eth_param": {
+        "nodeNumber": 3
+    },
+    "test_param": {
+    	"maxGas": 15000000,
+    	"minGas": 10000000,
+    	"gasStep": 5000000,
+    	"maxInterval": 15,
+    	"minInterval": 10,
+    	"intervalStep": 5
+    }
+}

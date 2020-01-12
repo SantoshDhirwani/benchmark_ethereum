@@ -17,7 +17,7 @@ test:
         tps: 50
     arguments:
       money: 10000
-    callback: ./open.js
+    callback: scenario/simple/open.js
   - label: query
     description: Test description for the query performance of the deployed chaincode
     txNumber:
@@ -26,7 +26,7 @@ test:
     - type: fixed-rate
       opts:
         tps: 100
-    callback: ./query.js
+    callback: scenario/simple/query.js
   - label: transfer
     description: Test description for transfering money between accounts
     txNumber:
@@ -37,7 +37,7 @@ test:
               tps: 50
     arguments:
         money: 100
-    callback: ./transfer.js
+    callback: scenario/simple/transfer.js
 monitor:
   type:
   - docker

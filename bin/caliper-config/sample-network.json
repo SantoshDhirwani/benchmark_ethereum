@@ -2,8 +2,8 @@
     "caliper": {
         "blockchain": "ethereum",
         "command" : {
-            "start": "",
-            "end" : ""
+            "start": "echo start benchmark",
+            "end" : "echo finish benchmark"
         }
     },
     "ethereum": {
@@ -15,7 +15,7 @@
         "transactionConfirmationBlocks": 2,
         "contracts": {
             "simple": {
-                "path": "src/contract/simple.json"
+                "path": "src/ethereum/simple/simple.json"
             }
         }
     }
