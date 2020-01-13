@@ -80,10 +80,14 @@ for index in ${!INSTANCE_LIST[@]}; do
 done
 
 ACCOUNT_STRING=""
+INSTANCE_IP_LIST=( $(gcloud compute instances list --filter="name~^${prefix}" --format='value(EXTERNAL_IP)') )
+INSTANCES_STRING=""
 
 for index in ${!ACCOUNT_LIST[@]}; do
+    INSTANCES_STRING+="${INSTANCE_IP_LIST[index]}:8501:${ACCOUNT_LIST[index]}:${PASSWORD}\\n"
     ACCOUNT_STRING+="${ACCOUNT_LIST[index]}\\n"
 done
+echo ${INSTANCES_STRING} > run_caliper.conf
 ACCOUNT_STRING+="\\n"
 
 echo ---- ACCOUNTS CREATED ----

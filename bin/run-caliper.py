@@ -5,10 +5,10 @@ import argparse
 
 def load_args():
     parser = argparse.ArgumentParser(description="This script is for running caliper benchmark")
-    parser.add_argument("--ipaddress", help="IP Address of the node SUT", required=True)
-    parser.add_argument("--port", help="Used port", required=True)
-    parser.add_argument("--account", help="The account of the node", required=True)
-    parser.add_argument("--password", help="Password for the account", required=True)
+    #parser.add_argument("--ipaddress", help="IP Address of the node SUT", required=True)
+    #parser.add_argument("--port", help="Used port", required=True)
+    #parser.add_argument("--account", help="The account of the node", required=True)
+    #parser.add_argument("--password", help="Password for the account", required=True)
     parser.add_argument("--interval", help="Block interval", required=True)
     parser.add_argument("--gaslimit", help="Block gas limit", required=True)
 
@@ -16,14 +16,18 @@ def load_args():
 
 
 def update_json(filename, args):
+    config = open('run_caliper.conf', 'r')
+    instance = config.readline()
+    config.close()
     with open(filename, 'r') as read_file:
         data = json.load(read_file)
-        
-    data["ethereum"]["url"] = "http://"+args.ipaddress+":"+args.port
-    data["ethereum"]["contractDeployerAddress"]= args.account
-    data["ethereum"]["contractDeployerAddressPassword"]= args.password
-    data["ethereum"]["fromAddress"]= args.account
-    data["ethereum"]["fromAddressPassword"]= args.password
+    instance_data = instance.split(':')
+
+    data["ethereum"]["url"] = "http://"+instance_data[0]+":"+instance_data[1]
+    data["ethereum"]["contractDeployerAddress"]= "0x" + instance_data[2]
+    data["ethereum"]["contractDeployerAddressPassword"]= instance_data[3].split('\n')[0]
+    data["ethereum"]["fromAddress"]= "0x" + instance_data[2]
+    data["ethereum"]["fromAddressPassword"]= instance_data[3].split('\n')[0]
 
     with open('caliper-config/networks/ethereum/1node-clique/ethereum.json', "w") as jsonFile:
         json.dump(data, jsonFile, indent=4)
