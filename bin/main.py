@@ -66,7 +66,8 @@ if __name__ == '__main__':
         for gas in gasLimit:
             print('Building SUT with block interval ' + str(interval) + 's and ' + str(gas) + ' block gas limit')
             run_file(['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval), str(gas)])
-            #run_file(['python'],_get_path('run_caliper.py'), ...)
+            #run_file(['python'],_get_path('run_caliper.py'), '----ipaddress',  '35.189.235.103', '--port', 8545,
+            #                   '--account', '0x6aB8F5Cc686e543e3773fA6CA14513316fCEBCDa', '--password', 'cloudproto')
     print('Aggregating all the workload reports')
     run_file(['python', _get_path('aggregate-html-reports.py')])
     run_file(['python', _get_path('calculate-optimal-values.py')])

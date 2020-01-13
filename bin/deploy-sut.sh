@@ -12,6 +12,7 @@ INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=ethereum-sut-template
 USERNAME=cloudproto
+PASSWORD=cloudproto
 NETWORK_ID=123
 # clean previous sut
 
@@ -73,7 +74,7 @@ for index in ${!INSTANCE_LIST[@]}; do
     echo CREATING GETH ACCOUNT ON ${INSTANCE_LIST[index]}
     gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "rm -rf .ethereum"
     gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "killall geth || true"
-    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "echo password >> password && geth --datadir .ethereum/ account new --password password"
+    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "echo ${PASSWORD} > password && geth --datadir .ethereum/ account new --password password"
     ACCOUNT=$(gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ account list | cut -d "{" -f2 | cut -d "}" -f1")
     ACCOUNT_LIST[index]=${ACCOUNT}
 done
@@ -103,7 +104,7 @@ for index in ${!INSTANCE_LIST[@]}; do
     echo GENESIS INITIALISED on ${INSTANCE_LIST[index]}
     ACCOUNT=$(gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ account list | cut -d "{" -f2 | cut -d "}" -f1")
     #start the node
-    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "nohup geth --datadir .ethereum/ --syncmode 'full' --port 30311 --rpc --rpcaddr '0.0.0.0' --rpcport 8501 --rpcapi 'personal,db,eth,net,web3,txpool,miner' --bootnodes \"${BOOTNODE_ENODE}\" --networkid ${NETWORK_ID} --gasprice '1' -unlock ${ACCOUNT} --password password --allow-insecure-unlock --nousb --mine > /dev/null 2>&1 &"
+    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "nohup geth --datadir .ethereum/ --syncmode 'full' --port 30311 --rpc --rpcaddr '0.0.0.0' --rpcport 8501 --rpcapi 'personal,db,eth,net,web3,txpool,miner' --bootnodes \"${BOOTNODE_ENODE}\" --networkid ${NETWORK_ID} --gasprice '1' --unlock 0x${ACCOUNT} --password password --allow-insecure-unlock --nousb --mine > /dev/null 2>&1 &"
     GETH=$( gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "pgrep geth")
     if [ X${GETH} == "X" ]
     then
