@@ -1,0 +1,22 @@
+{
+    "caliper": {
+        "blockchain": "ethereum",
+        "command" : {
+            "start": "echo start benchmark",
+            "end" : "echo finish benchmark"
+        }
+    },
+    "ethereum": {
+        "url": "",
+        "contractDeployerAddress": "",
+        "contractDeployerAddressPassword": "",
+        "fromAddress": "",
+        "fromAddressPassword": "",
+        "transactionConfirmationBlocks": 2,
+        "contracts": {
+            "simple": {
+                "path": "src/ethereum/simple/simple.json"
+            }
+        }
+    }
+}
