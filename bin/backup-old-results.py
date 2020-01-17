@@ -22,10 +22,8 @@ def delete(folder):
             print('Failed to delete %s. Reason: %s' % (file_path, e))
 
 
-def backup(filename, currentdir, newdir):
+def backup(filename, currentdir, newdir, dt_string):
     try:
-        dt_string = datetime.now().strftime("%d%m%Y%H%M%S")
-
         zip_string = filename + dt_string + ".zip"
         zipf = zipfile.ZipFile(zip_string, 'w', zipfile.ZIP_DEFLATED)
         zipdir(currentdir, zipf)
@@ -36,9 +34,10 @@ def backup(filename, currentdir, newdir):
 
 
 if __name__ == '__main__':
+    dt_string = datetime.now().strftime("%d%m%Y%H%M%S")
 
-    backup("reports-backup-", "caliper-reports/", "old/old-reports/")
+    backup("reports-backup-", "caliper-reports/", "old/old-reports/", dt_string)
     delete("caliper-reports/")
 
-    backup("aggregated-backup-", "aggregated-results/", "old/old-aggregated-results/")
+    backup("aggregated-backup-", "aggregated-results/", "old/old-aggregated-results/", dt_string)
     delete("aggregated-results/")
