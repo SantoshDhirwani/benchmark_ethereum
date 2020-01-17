@@ -23,13 +23,16 @@ def delete(folder):
 
 
 def backup(filename, currentdir, newdir):
-    dt_string = datetime.now().strftime("%d%m%Y%H%M%S")
+    try:
+        dt_string = datetime.now().strftime("%d%m%Y%H%M%S")
 
-    zip_string = filename + dt_string + ".zip"
-    zipf = zipfile.ZipFile(zip_string, 'w', zipfile.ZIP_DEFLATED)
-    zipdir(currentdir, zipf)
-    zipf.close()
-    os.rename(zip_string, newdir + zip_string)
+        zip_string = filename + dt_string + ".zip"
+        zipf = zipfile.ZipFile(zip_string, 'w', zipfile.ZIP_DEFLATED)
+        zipdir(currentdir, zipf)
+        zipf.close()
+        os.rename(zip_string, newdir + zip_string)
+    except Exception as e:
+        print('Failed to zip %s. Reason: %s' % (zip_string, e))
 
 
 if __name__ == '__main__':
