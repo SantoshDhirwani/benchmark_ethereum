@@ -56,6 +56,8 @@ def run_file(file_path):
 if __name__ == '__main__':
     print('Starting tool execution...')
     config = load_config(CONFIG_PATH)
+    run_file(['python', _get_path('backup-old-results.py')])
+
     #TODO decide how to give these parameters
     intervals = range(config['test_param']['minInterval'], config['test_param']['maxInterval']+config['test_param']['intervalStep'], 
         config['test_param']['intervalStep'])
