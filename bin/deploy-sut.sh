@@ -8,9 +8,9 @@ NUMBER_NODES=${1}
 BLOCK_INTERVAL=${2}
 BLOCK_SIZE=${3}
 NEW_SETUP=${4}
-INSTANCE_GROUP_NAME=ethereum-sut-group
+# INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
-INSTANCE_TEMPLATE=ethereum-sut-template
+BASE_INSTANCE_NAME=ethereum-sut-node-
 USERNAME=cloudproto
 PASSWORD=cloudproto
 NETWORK_ID=123
@@ -19,16 +19,21 @@ NETWORK_ID=123
 
 if [ X${NEW_SETUP} == "X1" ]
 then
+INSTANCE_LIST=( $(gcloud compute instances list --filter="name~^${BASE_INSTANCE_NAME}" --format='value(name)') )
 echo DELETING PREVIOUS SETUP, THIS MIGHT TAKE SOME TIME...
 echo
-echo | gcloud -q compute instance-groups managed delete ${INSTANCE_GROUP_NAME} || true
 echo | gcloud -q compute instances delete ${BOOT_NODE_NAME} || true
+
+for index in ${!INSTANCE_LIST[@]}; do
+    echo | gcloud -q compute instances delete ${INSTANCE_LIST[index]} || true
+done
+
 echo
 echo PREVIOUS SETUP DELETED
 
 # run bootnode
 echo ---- CREATING BOOTNODE ----
-gcloud compute instances create ${BOOT_NODE_NAME} --source-instance-template ${INSTANCE_TEMPLATE}
+gcloud compute instances create ${BOOT_NODE_NAME} --metadata-from-file startup-script=startup-script.sh
 echo BOOTNODE CREATED!
 echo SLEEPING FOR 30 SECONDS TO MAKE SURE BOOTNODE IS UP...
 sleep 30
@@ -36,11 +41,10 @@ sleep 30
 # create instance group of sealer nodes
 echo
 echo ---- CREATING NODES ----
-gcloud compute instance-groups managed create ${INSTANCE_GROUP_NAME} \
-   --base-instance-name ethereum-sut \
-   --size ${NUMBER_NODES} \
-   --template ${INSTANCE_TEMPLATE}
-
+for i in $(seq 1 $NUMBER_NODES); do
+    gcloud compute instances create ${BASE_INSTANCE_NAME}-${i} \
+        --metadata-from-file startup-script=startup-script.sh
+done
 echo SLEEPING FOR 30 SECONDS TO MAKE SURE INSTANCES ARE UP!
 sleep 30
 fi
@@ -64,8 +68,7 @@ BOOTNODE_ENODE=enode://${hex}@${IP_BOOTNODE}:30310?discport=30310
 
 echo THE BOOTNODE ENODE ADDRESS IS: ${BOOTNODE_ENODE}
 
-prefix=$(gcloud compute instance-groups managed list --format='value(baseInstanceName)' --filter='name~^'${INSTANCE_GROUP_NAME}'')
-INSTANCE_LIST=( $(gcloud compute instances list --filter="name~^${prefix}" --format='value(name)') )
+INSTANCE_LIST=( $(gcloud compute instances list --filter="name~^${BASE_INSTANCE_NAME}" --format='value(name)') )
 ACCOUNT_LIST=()
 
 # create accounts on nodes
@@ -80,7 +83,7 @@ for index in ${!INSTANCE_LIST[@]}; do
 done
 
 ACCOUNT_STRING=""
-INSTANCE_IP_LIST=( $(gcloud compute instances list --filter="name~^${prefix}" --format='value(EXTERNAL_IP)') )
+INSTANCE_IP_LIST=( $(gcloud compute instances list --filter="name~^${BASE_INSTANCE_NAME}" --format='value(EXTERNAL_IP)') )
 INSTANCES_STRING=""
 
 for index in ${!ACCOUNT_LIST[@]}; do
