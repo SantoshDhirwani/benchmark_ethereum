@@ -96,12 +96,9 @@ else
     pip install numpy 
     echo 'numpy is installed'
 fi
-  
-  
   echo ""
   
-  
-  echo "Let's run the template 61-skript"
+  echo "Let's run the template 61-skript-TODO"
  # ../Template61- I need to know the path
  echo ""
   echo "Pre-requisites are all checked. Please see if something is missing and needs to be installed."
