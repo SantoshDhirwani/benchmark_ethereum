@@ -88,7 +88,6 @@ else
     echo 'matplotlib is installed'
 fi
 
-
 if python -c 'import pkgutil; exit(not pkgutil.find_loader("numpy"))'; then
     echo 'numpy is found'
 else
@@ -97,7 +96,6 @@ else
     echo 'numpy is installed'
 fi
   echo ""
-  
   echo "Let's run the template 61-skript-TODO"
  # ../Template61- I need to know the path
  echo ""
