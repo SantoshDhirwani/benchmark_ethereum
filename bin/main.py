@@ -53,8 +53,8 @@ def run_file(file_path):
 
 
 def check_execution(interval, gaslimit):
-    run_file(['python', _get_path('get-last-throughput.py')], '--interval', str(interval), '--gaslimit',
-                   str(gaslimit))
+    run_file(['python', _get_path('get-last-throughput.py'), '--interval', str(interval), '--gaslimit',
+                   str(gaslimit)])
     tps = 0
     with open('last-tps', "r") as file:
         tps = float(file.read())
