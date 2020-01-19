@@ -9,5 +9,8 @@
     	"maxInterval": 15,
     	"minInterval": 10,
     	"intervalStep": 5
-    }
+	},
+	"run_caliper": {
+		"attempt": 3
+	}
 }
