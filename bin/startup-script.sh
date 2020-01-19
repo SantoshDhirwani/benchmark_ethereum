@@ -1,5 +1,6 @@
 #!/bin/bash
 
+add-apt-repository -y ppa:ethereum/ethereum
 apt-get update
 apt-get -y install ethereum
 

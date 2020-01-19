@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
     for i in range(1, node_number + 1):
         node_name = 'ethereum{}'.format(i)
-        print('CREATE NODE WITH NAME:', node_name)
+        print('CREATING NODE WITH NAME:', node_name)
         run_file(['python', _get_path('gcp.py'), '--name', node_name])
 
     for interval in intervals:
