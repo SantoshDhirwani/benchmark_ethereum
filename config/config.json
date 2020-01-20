@@ -4,11 +4,11 @@
     },
     "test_param": {
     	"maxGas": 15000000,
-    	"minGas": 10000000,
+    	"defaultGas": 10000000,
     	"gasStep": 5000000,
     	"maxInterval": 15,
-    	"minInterval": 10,
-    	"intervalStep": 5
+		"defaultInterval": 5,
+		"intervalStep": 2
 	},
 	"run_caliper": {
 		"attempt": 3
