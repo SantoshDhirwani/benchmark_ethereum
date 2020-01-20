@@ -19,8 +19,11 @@ echo ""
   #Install and initialize the Cloud SDK using this link https://cloud.google.com/sdk/docs/?hl=de and install docker with this link https://docs.docker.com/install/linux/docker-ce/ubuntu/
 
  if hash "gcloud" 2>/dev/null; then
-    echo 'Google cloud SDK is installed. Please wait a few seconds..'
-    gcloud auth configure-docker
+    echo 'Google cloud SDK is installed. Please wait a few seconds..' 
+    echo 'Follow the link to log in please!'
+   gcloud auth login
+ echo " We will process.."
+gcloud config set project totemic-carrier-259013
   else
     echo 'Google cloud SDK is not installed. Please follow the instructions here: https://cloud.google.com/sdk/install'
   fi
@@ -32,18 +35,7 @@ echo ""
     echo 'npm is missing. Please download Node.js and follow the instructions in the link: https://www.npmjs.com/get-npm '
   fi
   
-  cd cp_ws_1920/bin
 
-if hash "caliper" 2>/dev/null; then
-    echo 'Caliper is already installed'
-  else
-    echo 'Caliper is not installed in /bin'
-    echo 'We will process with installation'
-    npm install -g --only=prod @hyperledger/caliper-cli
-    echo 'We will run caliper bind to configure ethereum'
-   npx caliper bind --caliper-bind-sut ethereum --caliper-bind-sdk 1.2.1 --caliper-cwd ./ --caliper-bind-args="-g"
-  fi
-cd -
 
     if hash "geth" 2>/dev/null; then
     echo 'geth is installed'
@@ -58,6 +50,19 @@ cd -
   fi
   
   echo ""
+   cd cp_ws_1920/bin
+
+if hash "caliper" 2>/dev/null; then
+    echo 'Caliper is already installed'
+  else
+    echo 'Caliper is not installed in /bin'
+    echo 'We will process with installation'
+    npm install -g --only=prod @hyperledger/caliper-cli
+    echo 'We will run caliper bind to configure ethereum'
+   npx caliper bind --caliper-bind-sut ethereum --caliper-bind-sdk 1.2.1 --caliper-cwd ./ --caliper-bind-args="-g"
+  fi
+cd -
+echo ""
   
   echo "Let's make sure that the needed python libraries are installed! "
   echo ""
