@@ -6,21 +6,8 @@ echo "Welcome! Before you can run our tool, you need to make sure you have all t
 echo ""
 #checks if caliper is installed under /bin, if not it will be installed and also runs the caliper bind to conigure ethereum globally
 
-cd cp_ws_1920/bin
-
-if hash "caliper" 2>/dev/null; then
-    echo 'Caliper is already installed'
-  else
-    echo 'Caliper is not installed in /bin'
-    echo 'We will process with installation'
-    npm install -g --only=prod @hyperledger/caliper-cli
-    echo 'We will run caliper bind to configure ethereum'
-   npx caliper bind --caliper-bind-sut ethereum --caliper-bind-sdk 1.2.1 --caliper-cwd ./ --caliper-bind-args="-g"
-  fi
-cd -
-
 echo ""
-echo " We will procees further"
+echo "We will procees further"
 echo ""
   if hash "jq" 2>/dev/null; then
     echo 'jq is installed'
@@ -45,7 +32,19 @@ echo ""
     echo 'npm is missing. Please download Node.js and follow the instructions in the link: https://www.npmjs.com/get-npm '
   fi
   
-  
+  cd cp_ws_1920/bin
+
+if hash "caliper" 2>/dev/null; then
+    echo 'Caliper is already installed'
+  else
+    echo 'Caliper is not installed in /bin'
+    echo 'We will process with installation'
+    npm install -g --only=prod @hyperledger/caliper-cli
+    echo 'We will run caliper bind to configure ethereum'
+   npx caliper bind --caliper-bind-sut ethereum --caliper-bind-sdk 1.2.1 --caliper-cwd ./ --caliper-bind-args="-g"
+  fi
+cd -
+
     if hash "geth" 2>/dev/null; then
     echo 'geth is installed'
   else
@@ -99,4 +98,4 @@ fi
   echo "Let's run the template 61-skript-TODO"
  # ../Template61- I need to know the path
  echo ""
-  echo "Pre-requisites are all checked. Please see if something is missing and needs to be installed."
+  echo "Pre-requisites are all checked. Success!"
