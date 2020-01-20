@@ -19,9 +19,6 @@ gcloud compute instances create ${INSTANCE_NAME} \
 echo SLEEPING FOR 30 SECONDS TO MAKE SURE INSTANCES ARE UP!
 sleep 30
 
-echo BOOTNODE CREATED!
-
-
 echo "Creating VM template based on this launched instance"
 
 gcloud compute instance-templates create ${INSTANCE_TEMPLATE_NAME} --source-instance ${INSTANCE_NAME} \

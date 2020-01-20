@@ -62,8 +62,6 @@ if __name__ == '__main__':
     gasLimit = range(config['test_param']['minGas'], config['test_param']['maxGas']+config['test_param']['gasStep'],
         config['test_param']['gasStep'])
 
-    run_file(['sh', _get_path('create-template.sh')])
-
     for interval in intervals:
         for gas in gasLimit:
             print('Building SUT with block interval ' + str(interval) + 's and ' + str(gas) + ' block gas limit')
