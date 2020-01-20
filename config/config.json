@@ -9,5 +9,8 @@
     	"maxInterval": 15,
     	"minInterval": 10,
     	"intervalStep": 5
-    }
+    },
+    "parameters": {
+        "template_name": ethtemplate
+    },
 }

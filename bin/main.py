@@ -57,11 +57,13 @@ if __name__ == '__main__':
     print('Starting tool execution...')
     config = load_config(CONFIG_PATH)
     #TODO decide how to give these parameters
-    intervals = range(config['test_param']['minInterval'], config['test_param']['maxInterval']+config['test_param']['intervalStep'], 
+    intervals = range(config['test_param']['minInterval'], config['test_param']['maxInterval']+config['test_param']['intervalStep'],
         config['test_param']['intervalStep'])
-    gasLimit = range(config['test_param']['minGas'], config['test_param']['maxGas']+config['test_param']['gasStep'], 
+    gasLimit = range(config['test_param']['minGas'], config['test_param']['maxGas']+config['test_param']['gasStep'],
         config['test_param']['gasStep'])
-    
+
+    run_file(['sh', _get_path('create-template.sh')])
+
     for interval in intervals:
         for gas in gasLimit:
             print('Building SUT with block interval ' + str(interval) + 's and ' + str(gas) + ' block gas limit')
