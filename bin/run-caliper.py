@@ -67,12 +67,12 @@ def main():
         #running run-caliper.sh with reportname
         run_command = os.system("bash " + bashfile + " " + reportname)
         if run_command == 0:
-            print("caliper success")
+            print("Running caliper success.")
             break
 
         # if it reach the maximum attempt, printing error message
         if i == attempt-1:
-            print("max retry error")
+            print("Meet maximum retry. Running caliper error.")
         else:
             print("Caliper retrying...")
             pass
