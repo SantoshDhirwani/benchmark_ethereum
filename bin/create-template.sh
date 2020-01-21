@@ -2,29 +2,41 @@
 
 set -e
 
-############################################################
-TEMPLATE_NAME=`cat ../config/config.json | awk '/template_name/{print $2}'`
-INSTANCE_TEMPLATE_NAME=${TEMPLATE_NAME}
-INSTANCE_NAME=${TEMPLATE_NAME}
+###########ENVIRONMENT_VARIBALES############################
+VM_TEMPLATE_NAME=$(cat ../config/config.json | awk  '/templateName/{print $2}' | sed 's/\"//g' )
+RANDOM_ID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
+INSTANCE_NAME=${VM_TEMPLATE_NAME}
 ZONE=europe-west1-b
-echo ${TEMPLATE_NAME}
+IMAGE_FAMILY=ubuntu-1804-lts
+IMAGE_PROJECT=ubuntu-os-cloud
+SCRIPT_PATH=./startup-script.sh
 ############################################################
+echo "VM Template Name" $VM_TEMPLATE_NAME
 
 echo "Creating new instance"
-gcloud compute instances create ${INSTANCE_NAME} \
-    --image-family ubuntu-1804-lts --image-project gce-uefi-images \
-    --metadata-from-file startup-script=./startup-script.sh \
-    --zone=${ZONE}
+
+echo "VM Instance Name" $INSTANCE_NAME
+
+gcloud compute instances create $INSTANCE_NAME \
+	--image-family $IMAGE_FAMILY --image-project $IMAGE_PROJECT \
+	--metadata-from-file startup-script=$SCRIPT_PATH \
+	--zone=$ZONE
 
 echo SLEEPING FOR 30 SECONDS TO MAKE SURE INSTANCES ARE UP!
 sleep 30
 
+echo "Allowing HTTP"
+gcloud compute firewall-rules create ${INSTANCE_NAME} --allow tcp
+
+echo "Instance setup finished. ${INSTANCE_NAME} is ready to use."
+
 echo "Creating VM template based on this launched instance"
 
-gcloud compute instance-templates create ${INSTANCE_TEMPLATE_NAME} --source-instance ${INSTANCE_NAME} \
-        --source-instance-zone ${ZONE}
+gcloud compute instance-templates create $VM_TEMPLATE_NAME --source-instance $INSTANCE_NAME \
+	--source-instance-zone $ZONE
 
-#Stopping instance
-echo "Stoping the instance after sucessfully creating a instance-template"
-sleep 30
-gcloud compute instances stop ${INSTANCE_NAME} --zone=${ZONE} -q
+echo "Stopping the instance after sucessfully creating a VM-template"
+gcloud compute instances stop $INSTANCE_NAME --zone=$ZONE -q
+sleep 1
+
+echo "Template Created and VM $INSTANCE_NAME Stopped Successfully"
