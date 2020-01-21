@@ -20,23 +20,18 @@ echo "VM Instance Name" $INSTANCE_NAME
 gcloud compute instances create $INSTANCE_NAME \
 	--image-family $IMAGE_FAMILY --image-project $IMAGE_PROJECT \
 	--metadata-from-file startup-script=$SCRIPT_PATH \
-	--zone=$ZONE
+	--zone=$ZONE --tags http-server,https-server
 
 echo SLEEPING FOR 30 SECONDS TO MAKE SURE INSTANCES ARE UP!
 sleep 30
 
-echo "Allowing HTTP"
-gcloud compute firewall-rules create ${INSTANCE_NAME} --allow tcp
-
 echo "Instance setup finished. ${INSTANCE_NAME} is ready to use."
-
-echo "Creating VM template based on this launched instance"
-
-gcloud compute instance-templates create $VM_TEMPLATE_NAME --source-instance $INSTANCE_NAME \
-	--source-instance-zone $ZONE
 
 echo "Stopping the instance after sucessfully creating a VM-template"
 gcloud compute instances stop $INSTANCE_NAME --zone=$ZONE -q
-sleep 1
+
+echo "Creating VM template based on this launched instance"
+gcloud compute instance-templates create $VM_TEMPLATE_NAME --source-instance $INSTANCE_NAME \
+	--source-instance-zone $ZONE --tags http-server,https-server
 
 echo "Template Created and VM $INSTANCE_NAME Stopped Successfully"
