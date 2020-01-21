@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+CHECK=true
 echo ""
 echo "Welcome! Before you can run our tool, you need to make sure you have all the packages and libraries installed !"
 
@@ -12,8 +13,10 @@ echo ""
   if hash "jq" 2>/dev/null; then
     echo 'jq is installed'
   else
+   CHECK=false;
     echo 'jq is missing.'
     echo 'Please follow this link: https://stedolan.github.io/jq/download/  to install jq'
+   
   fi
   
   #Install and initialize the Cloud SDK using this link https://cloud.google.com/sdk/docs/?hl=de and install docker with this link https://docs.docker.com/install/linux/docker-ce/ubuntu/
@@ -23,8 +26,9 @@ echo ""
     echo 'Follow the link to log in please!'
    gcloud auth login
  echo " We will process.."
-gcloud config set project totemic-carrier-259013
+
   else
+   CHECK=false;
     echo 'Google cloud SDK is not installed. Please follow the instructions here: https://cloud.google.com/sdk/install'
   fi
   
@@ -32,6 +36,7 @@ gcloud config set project totemic-carrier-259013
   if hash "npm" 2>/dev/null; then
     echo 'npm is installed'
   else
+   CHECK=false;
     echo 'npm is missing. Please download Node.js and follow the instructions in the link: https://www.npmjs.com/get-npm '
   fi
   
@@ -40,12 +45,14 @@ gcloud config set project totemic-carrier-259013
     if hash "geth" 2>/dev/null; then
     echo 'geth is installed'
   else
+   CHECK=false;
     echo 'geth is missing. Please follow this link https://github.com/ethereum/go-ethereum/wiki/Installing-Geth to install geth'
   fi
   
     if hash "puppeth" 2>/dev/null; then
     echo 'puppeth is installed'
   else
+   CHECK=false;
     echo 'puppeth is missing. Please follow this link https://www.sitepoint.com/puppeth-introduction/ to install puppeth'
   fi
   
@@ -103,4 +110,12 @@ fi
   echo "Let's run the template 61-skript-TODO"
  # ../Template61- I need to know the path
  echo ""
-  echo "Pre-requisites are all checked. Success!"
+ 
+ 
+ if $CHECK; 
+then
+echo "Pre-requisites are all checked. Success" ;
+else
+echo "Not all the Pre-requisites are installed.";
+fi
+
