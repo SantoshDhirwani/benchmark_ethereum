@@ -52,6 +52,17 @@ def run_file(file_path):
             break
 
 
+def check_execution(interval, gaslimit):
+    run_file(['python', _get_path('get-last-throughput.py'), '--interval', str(interval), '--gaslimit',
+                   str(gaslimit)])
+    tps = 0
+    with open('last-tps', "r") as file:
+        tps = float(file.read())
+    print(tps)
+    #TODO check if last value improved enough to continue benchmarking
+    return 0
+
+
 def find_min_interval(config):
     intervals = range(1,
                       config['test_param']['defaultInterval'] + config['test_param']['intervalStep'],
@@ -66,7 +77,7 @@ def find_min_interval(config):
             run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit',
                       str(config['test_param']['defaultGas'])])
             # UNCOMMENT ONLY FOR TESTING PURPOSES
-            #run_file(
+            # run_file(
             #    ['sh', _get_path('test.sh'), str(interval),
             #     str(config['test_param']['defaultGas'])])
             print('Minimum block interval found! - ' + str(interval) + ' seconds.')
@@ -98,6 +109,7 @@ def find_min_gas_limit(config):
                       str(gas)])
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             #run_file(
+            # run_file(
             #    ['sh', _get_path('test.sh'),
             #     str(config['test_param']['defaultInterval']), str(gas)])
             print('Minimum block gas limit found! - ' + str(gas))
@@ -151,6 +163,9 @@ if __name__ == '__main__':
             run_file(['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval), str(gas),
                       '0'])
             run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit', str(gas)])
+
+            if check_execution(interval, gas) is None:
+                break
 
     print('Aggregating all the workload reports')
     run_file(['python', _get_path('aggregate-html-reports.py')])
