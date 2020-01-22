@@ -163,7 +163,7 @@ if __name__ == '__main__':
             run_file(['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval), str(gas),
                       '0'])
             run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit', str(gas)])
-            if check_execution(interval, gas) is None:
+            #if check_execution(interval, gas) is None:
                 break
 
     print('Aggregating all the workload reports')
