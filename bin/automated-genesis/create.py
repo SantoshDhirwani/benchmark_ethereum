@@ -22,15 +22,12 @@ PIDFILE = "/tmp/geth.pid"
 GENESIS = u"""{
   "config": {
     "chainId": 15,
-    "homesteadBlock": 0,
+    "homesteadBlock": 1,
     "eip150Block": 0,
     "eip150Hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
     "eip155Block": 0,
-    "eip158Block": 0,
+    "eip158Block": 3,
     "byzantiumBlock": 0,
-    "constantinopleBlock": 0,
-    "petersburgBlock": 0,
-    "istanbulBlock": 0,
     "clique": {
       "period": $period$,
       "epoch": 30000
@@ -148,18 +145,20 @@ def initAccount():
 
 
 def init(args):
-    # Create multiple accounts and genesis.json
+    
+    # Create multiple accountsand genesis.json
     i =1
-    extradat=""
-    n = int (load_keys("nodes")) #add number of nodes here
-    gas = str(load_keys("gaslimit")) #add gas limit
-    interval = load_keys("interval")#add Block Interval
+    extradat=""#extra data
+    n = args.n #add number of nodes here
+    gas = args.gas#add gas limit
+    interval = args.interval
+    print(n,gas,interval,"printing n")
     for i in range (1,n+1):
         initAccount()#Create accounts
         if  i== 1: #update genesis.json with new added addreses for the first account
             address = getAddr(i)
             extradat=address
-            txt = GENESIS.replace("$ADDRESS$", address).replace("$gasLimit$",gas).replace("$period$", str(interval))
+            txt = GENESIS.replace("$ADDRESS$", address).replace("$gasLimit$",str(gas)).replace("$period$", str(interval))
             f = open("genesis.json", "w")
             f.write(txt)# Create genesis.json file for first time
             f.close()
@@ -168,7 +167,7 @@ def init(args):
             for line1 in test1:
                 f.write(line1)
             f.close()
-        elif i < n: #for Rest of the accounts
+        elif i < n: #For Rest of the accounts -1
             address = getAddr(i)
             extradat=extradat+address
             f1 = open("genesis.json", "r")
@@ -185,7 +184,7 @@ def init(args):
             f1.close()
             f2.close()
         else:
-            #update genesis.json with new added addreses for last account
+            #Update genesis.json with new added addreses for last account
             address = getAddr(i)
             extradat=extradat+address
             f4 = open("genesis.json", "r")
@@ -209,14 +208,13 @@ def import_(args):
     """fsdf"""
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S')
-
     parser = argparse.ArgumentParser(description = 'to be completed')
-
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
-
     init_parser = subparsers.add_parser('init')
     init_parser.set_defaults(func = init)
-
+    init_parser.add_argument("n",type=int)# number of nodes
+    init_parser.add_argument("gas",type=int)#gas limit
+    init_parser.add_argument("interval",type=int)#Block Interval
     args = parser.parse_args()
     args.func(args)  
