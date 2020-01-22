@@ -164,7 +164,7 @@ if __name__ == '__main__':
                       '0'])
             run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit', str(gas)])
             #if check_execution(interval, gas) is None:
-                break
+            break
 
     print('Aggregating all the workload reports')
     run_file(['python', _get_path('aggregate-html-reports.py')])
