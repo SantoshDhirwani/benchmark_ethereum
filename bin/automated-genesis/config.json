@@ -1,4 +1,7 @@
 {
   "datadir" : "~/private_ethereum_blockchain",
-  "password" : "createpassword"
+  "password" : "createpassword",
+  "nodes" : "3",
+  "gaslimit" : "16000000",
+  "interval" : "5"
 }

@@ -22,21 +22,24 @@ PIDFILE = "/tmp/geth.pid"
 GENESIS = u"""{
   "config": {
     "chainId": 15,
-    "homesteadBlock": 1,
-    "eip150Block": 2,
+    "homesteadBlock": 0,
+    "eip150Block": 0,
     "eip150Hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-    "eip155Block": 3,
-    "eip158Block": 3,
-    "byzantiumBlock": 4,
+    "eip155Block": 0,
+    "eip158Block": 0,
+    "byzantiumBlock": 0,
+    "constantinopleBlock": 0,
+    "petersburgBlock": 0,
+    "istanbulBlock": 0,
     "clique": {
-      "period": 2,
+      "period": $period$,
       "epoch": 30000
     }
   },
   "nonce": "0x0",
   "timestamp": "0x5a97adf5",
-  "extraData": "",
-  "gasLimit": "0x47b760",
+  "extraData": "0x0000000000000000000000000000000000000000000000000000000000000000$extradata$0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c0",
+  "gasLimit": "$gasLimit$",
   "difficulty": "0x1",
   "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
   "coinbase": "0x0000000000000000000000000000000000000000",
@@ -54,7 +57,7 @@ def load_keys(key):
         d = json.loads(txt)
     except:
         logging.error("invalid config file")
-        logging.error("please use and modify the pgeth_config.json")
+        logging.error("please use and modify the config.json")
         sys.exit(-1)
     if d.has_key(key):
         return d[key]
@@ -145,42 +148,61 @@ def initAccount():
 
 
 def init(args):
-    # Create multiple accounts
+    # Create multiple accounts and genesis.json
     i =1
-    n =4 #add number of nodes here
+    extradat=""
+    n = int (load_keys("nodes")) #add number of nodes here
+    gas = str(load_keys("gaslimit")) #add gas limit
+    interval = load_keys("interval")#add Block Interval
     for i in range (1,n+1):
-        initAccount()
-        if i ==1 : 
-            # Create genesis.json file for first time
+        initAccount()#Create accounts
+        if  i== 1: #update genesis.json with new added addreses for the first account
             address = getAddr(i)
-            txt = GENESIS.replace("$ADDRESS$", address)
+            extradat=address
+            txt = GENESIS.replace("$ADDRESS$", address).replace("$gasLimit$",gas).replace("$period$", str(interval))
             f = open("genesis.json", "w")
-            f.write(txt)
+            f.write(txt)# Create genesis.json file for first time
             f.close()
-        else:
-            #update genesis.json with new added addreses
+            f = open("genesis.json", "a+")
+            test1 = ['      ', "\"0x", "$Address$", "\"", ":",' ', "{",' ', "\"","balance", "\"", ":",' ', "\"","1000000000000000000000", "\"",' ', "}",","]
+            for line1 in test1:
+                f.write(line1)
+            f.close()
+        elif i < n: #for Rest of the accounts
             address = getAddr(i)
-            f = open("genesis.json", "a")
-            textList = ['      ', "\"0x", address, "\"", ":",' ', "{",' ', "\"","balance", "\"", ":",' ', "\"","1000000000000000000000", "\"",' ', "}"]
-            for line in textList:
-                f.write(line)
-            if i != n-1:
-                f.write(",")    
-            f.write("\n")
-            if i == n-1:  
-                text = [' ',' ',"}","\n","}"]
-                for line1 in text:
-                    f.write(line1)
-            f.close()       
- 
-    # Initialize genesis.json change networkid accordingly
-    datadir = getDataDir()
-    if testDir(os.path.join(datadir, 'chaindata')):
-        return 
-    geth = testGeth()
-    options = [ "--datadir", datadir, "--networkid", "100" ]
-    cmdInit = [ geth ] + options + [ "init", "genesis.json"]
-    logging.debug("cmd: " + strCommand(cmdInit))
+            extradat=extradat+address
+            f1 = open("genesis.json", "r")
+            data=f1.read()
+            f2= open('genesis.json', 'w')
+            f2.write("\n")
+            f2.write( data.replace("$Address$", address))
+            test2 = ['      ', "\"0x", "$Address$", "\"", ":",' ', "{",' ', "\"","balance", "\"", ":",' ', "\"","1000000000000000000000", "\"",' ', "}"]
+            if i < n-1:
+                f2.write(",") 
+            f2.write("\n")
+            for line2 in test2:
+                f2.write(line2)
+            f1.close()
+            f2.close()
+        else:
+            #update genesis.json with new added addreses for last account
+            address = getAddr(i)
+            extradat=extradat+address
+            f4 = open("genesis.json", "r")
+            data=f4.read()
+            f5= open('genesis.json', 'w')
+            f5.write( data.replace("$extradata$", extradat))
+            f5.close()
+            f4.close()
+            f6 = open("genesis.json", "r")
+            data1=f6.read()
+            f7= open('genesis.json', 'w')
+            f7.write( data1.replace("$Address$", address))
+            text = [' ',"}","\n","}"]
+            for line3 in text:
+                f7.write(line3)
+            f6.close()
+            f7.close()
 
 
 def import_(args):
