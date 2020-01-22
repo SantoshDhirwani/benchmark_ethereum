@@ -57,7 +57,7 @@ echo ""
   fi
   
   echo ""
-   cd cp_ws_1920/bin
+   cd bin
 
 if hash "caliper" 2>/dev/null; then
     echo 'Caliper is already installed'
