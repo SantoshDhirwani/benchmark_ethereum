@@ -10,5 +10,9 @@
     	"maxInterval": 15,
     	"defaultInterval": 5,
     	"intervalStep": 2
-    }
+    },
+    
+"USERNAME": "cloudproto",
+"PASSWORD":"cloudproto",
+"NETWORK_ID": 123
 }
