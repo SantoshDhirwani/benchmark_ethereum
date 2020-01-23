@@ -52,6 +52,7 @@ def run_file(file_path):
             break
 
 
+
 def check_execution(interval, gaslimit):
     run_file(['python', _get_path('get-last-throughput.py'), '--interval', str(interval), '--gaslimit',
                    str(gaslimit)])
@@ -61,7 +62,7 @@ def check_execution(interval, gaslimit):
     print(tps)
     #TODO check if last value improved enough to continue benchmarking
     return 0
-
+  
 
 def find_min_interval(config):
     intervals = range(1,
@@ -97,7 +98,7 @@ def find_min_gas_limit(config):
                      config['test_param']['gasStep'])
     for gas in gasLimit:
         print('Benchmarking to find minimum value, current configuration ' + str(config['test_param'][
-                                                                                     'defaultInterval']) + ' seconds and ' +
+            'defaultInterval']) + ' seconds and ' +
               str(gas) + ' gas limit.')
         try:
             run_file(
