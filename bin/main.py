@@ -127,6 +127,7 @@ def find_min_gas_limit(config):
 if __name__ == '__main__':
     print('Starting tool execution...')
     config = load_config(CONFIG_PATH)
+
     # Backing up old results
     run_file(['python', _get_path('backup-old-results.py')])
 
@@ -163,9 +164,8 @@ if __name__ == '__main__':
             run_file(['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval), str(gas),
                       '0'])
             run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit', str(gas)])
-
-            if check_execution(interval, gas) is None:
-                break
+            #if check_execution(interval, gas) is None:
+            break
 
     print('Aggregating all the workload reports')
     run_file(['python', _get_path('aggregate-html-reports.py')])

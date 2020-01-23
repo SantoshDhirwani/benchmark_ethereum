@@ -1,6 +1,7 @@
 {
     "eth_param": {
-        "nodeNumber": 2
+        "nodeNumber": 2,
+        "templateName": "ethtemplate"
     },
     "test_param": {
     	"maxGas": 15000000,
