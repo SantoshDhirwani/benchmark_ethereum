@@ -68,7 +68,8 @@ def find_min_interval(config):
                       config['test_param']['maxInterval'] + config['test_param']['intervalStep'],
                       config['test_param']['intervalStep'])
     for interval in intervals:
-        print('Benchmarking to find minimum value, current configuration ' + str(interval) + ' seconds and ' +
+        print('Benchmarking to find minimum block interval value, current configuration ' + str(
+            interval) + ' seconds and ' +
               str(config['test_param']['defaultGas']) + ' gas limit.')
         try:
             run_file(
@@ -95,7 +96,8 @@ def find_min_interval(config):
 def find_min_gas_limit(config, interval):
     upper_bound = config['test_param']['minGas']
     lower_bound = upper_bound
-
+    print("Benchmarking to find minimum block gas limit value for block interval dimension of " + str(
+        interval) + " seconds.")
     while True:
         try:
             run_file(
@@ -110,12 +112,15 @@ def find_min_gas_limit(config, interval):
             print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
                 str(interval), str(upper_bound), e))
         lower_bound = upper_bound
-        upper_bound *= 2
+        upper_bound = int(upper_bound * 2)
 
-    upper_bound = (upper_bound + lower_bound) / 2
+    upper_bound = int((upper_bound + lower_bound) / 2)
+    print("A working gas limit upper bound has been found: " + str(upper_bound))
     accuracy = config["test_param"]["gasLimitAccuracy"]
 
     while True:
+        print("Benchmarking with " + str(upper_bound) + " upper bound and " + str(
+            lower_bound) + " to find the minimum gas limit")
         try:
             run_file(
                 ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
@@ -128,15 +133,16 @@ def find_min_gas_limit(config, interval):
             # run_file(
             #    ['sh', _get_path('test.sh'),
             #     str(config['test_param']['defaultInterval']), str(gas)])
-            if accuracy < (abs(upper_bound-lower_bound)):
+            if accuracy < (abs(upper_bound - lower_bound)):
                 break
             else:
-                upper_bound = (upper_bound + lower_bound) / 2
+                upper_bound = int((upper_bound + lower_bound) / 2)
         except Exception as e:
             print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
                 str(interval), str(upper_bound), e))
-            lower_bound = (upper_bound + lower_bound) / 2
+            lower_bound = int((upper_bound + lower_bound) / 2)
 
+    print("Minimum gas limit bound found: " + str(upper_bound))
     return upper_bound
 
 
@@ -145,13 +151,13 @@ if __name__ == '__main__':
     config = load_config(CONFIG_PATH)
 
     # Backing up old results
-    #run_file(['python', _get_path('backup-old-results.py')])
+    run_file(['python', _get_path('backup-old-results.py')])
 
     # Building SUT for the first time
-    # run_file(
-    #    ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
-    #     str(config['test_param']['defaultInterval']),
-    #     str(config['test_param']['defaultGas']), '1'])
+    run_file(
+        ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
+         str(config['test_param']['maxInterval']),
+         str(config['test_param']['defaultGas']), '1'])
 
     # Finding the minimum block interval
     min_interval = find_min_interval(config)
@@ -160,7 +166,7 @@ if __name__ == '__main__':
         exit(-1)
 
     # Finding the minimum block gas limit
-    min_gas = find_min_gas_limit(config)
+    min_gas = find_min_gas_limit(config, min_interval)
     if min_gas < 0:
         print("Tool execution failed.")
         exit(-1)
