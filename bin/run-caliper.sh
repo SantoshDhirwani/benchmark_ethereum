@@ -14,4 +14,14 @@ npx caliper benchmark run \
     --caliper-benchconfig scenario/simple/config.yaml \
     --caliper-networkconfig networks/ethereum/1node-clique/ethereum.json \
     --caliper-report-path "../caliper-reports/${REPORTNAME}" \
-|| { rm -r ../caliper-reports/${REPORTNAME}; exit 1; } #delete report and return exit code
+> caliper-status.txt
+
+#reading txt find the string stating benchmarking run succesful
+if grep -Fxq "Benchmark run succesful" caliper-status.txt
+then
+    echo "Benchmark run succesfully"
+else
+    #delete report and return exit code
+    rm -r ../caliper-reports/${REPORTNAME} 
+    exit 1
+fi 
