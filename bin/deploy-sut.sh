@@ -12,12 +12,12 @@ INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=ethereum-sut-template
 #receiving the values of Username, Password and NetworkID from config.json
-USERNAME=( $(jq '.USERNAME'  ../config/config.json));
+USERNAME=( $(jq -r '.USERNAME'  ../config/config.json));
 
 
-PASSWORD=( $(jq '.PASSWORD'  ../config/config.json));
+PASSWORD=( $(jq -r '.PASSWORD'  ../config/config.json));
 
-NETWORK_ID=( $(jq '.NETWORK_ID'  ../config/config.json));
+NETWORK_ID=( $(jq -r '.NETWORK_ID'  ../config/config.json));
 
 
 
