@@ -26,6 +26,9 @@ def load_config(path):
         raise KeyError(message.format(reason))
 
 
+config = load_config(CONFIG_PATH)
+
+
 def run_file(file_path):
     process = subprocess.Popen(
         file_path,
@@ -52,18 +55,18 @@ def run_file(file_path):
             break
 
 
-def check_execution(interval, gaslimit):
+def get_last_tps(interval, gaslimit):
     run_file(['python', _get_path('get-last-throughput.py'), '--interval', str(interval), '--gaslimit',
               str(gaslimit)])
     tps = 0
     with open('last-tps', "r") as file:
         tps = float(file.read())
-    print(tps)
-    # TODO check if last value improved enough to continue benchmarking
-    return 0
+    print("Last execution tps for block interval " + str(interval) + " seconds and " + str(
+        gaslimit) + " gas limit: " + str(tps))
+    return tps
 
 
-def find_min_interval(config):
+def find_min_interval():
     intervals = range(1,
                       config['test_param']['maxInterval'] + config['test_param']['intervalStep'],
                       config['test_param']['intervalStep'])
@@ -93,11 +96,12 @@ def find_min_interval(config):
     return -1
 
 
-def find_min_gas_limit(config, interval):
+def find_min_gas_limit(interval):
     upper_bound = config['test_param']['minGas']
     lower_bound = upper_bound
     print("Benchmarking to find minimum block gas limit value for block interval dimension of " + str(
         interval) + " seconds.")
+    # Benchmarking to get initial upper bound
     while True:
         try:
             run_file(
@@ -107,10 +111,12 @@ def find_min_gas_limit(config, interval):
             run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval),
                       '--gaslimit',
                       str(upper_bound)])
+            # yes
             break
         except Exception as e:
             print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
                 str(interval), str(upper_bound), e))
+        # no
         lower_bound = upper_bound
         upper_bound = int(upper_bound * 2)
 
@@ -118,6 +124,7 @@ def find_min_gas_limit(config, interval):
     print("A working gas limit upper bound has been found: " + str(upper_bound))
     accuracy = config["test_param"]["gasLimitAccuracy"]
 
+    # Benchmarking upper bound
     while True:
         print("Benchmarking with " + str(upper_bound) + " upper bound and " + str(
             lower_bound) + " to find the minimum gas limit")
@@ -133,22 +140,129 @@ def find_min_gas_limit(config, interval):
             # run_file(
             #    ['sh', _get_path('test.sh'),
             #     str(config['test_param']['defaultInterval']), str(gas)])
+
+            # Is inside the accuracy expected?
             if accuracy >= (abs(upper_bound - lower_bound)):
                 break
             else:
+                # yes
                 upper_bound = int((upper_bound + lower_bound) / 2)
         except Exception as e:
             print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
                 str(interval), str(upper_bound), e))
+            # no
             lower_bound = int((upper_bound + lower_bound) / 2)
 
     print("Minimum gas limit bound found: " + str(upper_bound))
     return upper_bound
 
 
+def find_optimal_parameters():
+    results = {}
+    peaks = []
+    trials = config["test_param"]["numberTrials"]
+    sensitivity = config["test_param"]["sensitivity"]
+    gas_step = config["test_param"]["gasStep"]
+    interval_step = config["test_param"]["intervalStep"]
+    # obtaining minimum block interval
+    interval = find_min_interval(config)
+    if interval < 0:
+        print("Tool execution failed.")
+        exit(-1)
+
+    optimal = False
+
+    while not optimal:
+        stop_reached = False
+        # Finding the minimum block gas limit
+        gas = find_min_gas_limit(config, interval)
+        if gas < 0:
+            # failed to get minimum block gas limit for x interval. Stopping tool execution
+            stop_reached = True
+        while not stop_reached:
+            # benchmarking with block interval x and block gas limit y
+            try:
+                run_file(
+                    ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
+                     str(interval),
+                     str(gas), '0'])
+                run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval),
+                          '--gaslimit',
+                          str(gas)])
+                # UNCOMMENT ONLY FOR TESTING PURPOSES
+                # run_file(
+                #    ['sh', _get_path('test.sh'),
+                #     str(config['test_param']['defaultInterval']), str(gas)])
+                last_tps = get_last_tps(interval, gas)
+                results[interval][gas] = last_tps
+                # Is optimal gas limit for x interval found?
+                if len(results[interval]) >= trials:
+                    pos = trials + 1
+                    improvement = False
+                    while pos > 1:
+                        tmp = results[interval][gas - (pos * gas_step)] / last_tps
+                        if tmp > sensitivity:
+                            improvement = True
+                        pos -= 1
+                    if not improvement:
+                        # yes
+                        stop_reached = True
+                    else:
+                        # no
+                        gas += gas_step
+                else:
+                    # no, we need more trials
+                    gas += gas_step
+            except Exception as e:
+                print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
+                    str(interval), str(gas), e))
+                # Crash found, yes
+                stop_reached = True
+
+        # optimal gas limit for x block interval found, getting the best TPS of this x block interval
+        max_key = 0
+        max_value = 0
+        for key, value in results[interval]:
+            if value > max_value:
+                max_value = value
+                max_key = key
+        last_peak = max_value
+
+        # saving the last peak in the array of peaks
+        peaks.append({str(interval) + ":" + str(max_key), max_value})
+        # can we improve more the tps?
+        if len(peaks) >= trials:
+            pos = trials + 1
+            improvement = False
+            while pos > 1:
+                tmp = next(iter(peaks[-pos].values())) / last_peak
+                if tmp > sensitivity:
+                    improvement = True
+                pos -= 1
+            if not improvement:
+                # no
+                optimal = True
+            else:
+                # yes
+                interval += interval_step
+        else:
+            # yes
+            interval += interval_step
+
+    # no more improvement expected, getting the maximum tps with its parameters
+    max_result = 0
+    best_parameters = {}
+    for parameters in peaks:
+        curr_value = next(iter(parameters.values()))
+        if curr_value > max_result:
+            max_result = curr_value
+            best_parameters = parameters
+
+    return best_parameters
+
+
 if __name__ == '__main__':
     print('Starting tool execution...')
-    config = load_config(CONFIG_PATH)
 
     # Backing up old results
     run_file(['python', _get_path('backup-old-results.py')])
@@ -159,35 +273,9 @@ if __name__ == '__main__':
          str(config['test_param']['maxInterval']),
          str(config['test_param']['defaultGas']), '1'])
 
-    # Finding the minimum block interval
-    min_interval = find_min_interval(config)
-    if min_interval < 0:
-        print("Tool execution failed.")
-        exit(-1)
+    result = find_optimal_parameters()
+    print(result)
 
-    # Finding the minimum block gas limit
-    min_gas = find_min_gas_limit(config, min_interval)
-    if min_gas < 0:
-        print("Tool execution failed.")
-        exit(-1)
-
-    # TODO implement algorithm to find maximum range of gaslimit and interval
-    print("Starting benchmarking plan execution")
-    # Creating new ranges
-    intervals = range(min_interval,
-                      config['test_param']['maxInterval'] + config['test_param']['intervalStep'],
-                      config['test_param']['intervalStep'])
-    gasLimit = range(min_gas, config['test_param']['maxGas'] + config['test_param']['gasStep'],
-                     config['test_param']['gasStep'])
-
-    for interval in intervals:
-        for gas in gasLimit:
-            print('Building SUT with block interval ' + str(interval) + 's and ' + str(gas) + ' block gas limit')
-            run_file(['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval), str(gas),
-                      '0'])
-            run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit', str(gas)])
-            # if check_execution(interval, gas) is None:
-            break
 
     print('Aggregating all the workload reports')
     run_file(['python', _get_path('aggregate-html-reports.py')])

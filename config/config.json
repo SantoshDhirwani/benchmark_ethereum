@@ -11,6 +11,8 @@
         "gasLimitAccuracy": 500000,
     	"maxInterval": 15,
     	"minInterval": 1,
-    	"intervalStep": 1
+    	"intervalStep": 1,
+        "numberTrials": 2,
+        "sensitivity": 0.05
     }
 }
