@@ -16,13 +16,13 @@ echo ""
    CHECK=false;
     echo 'jq is missing.'
     echo 'Please follow this link: https://stedolan.github.io/jq/download/  to install jq'
-   
+
   fi
-  
+
   #Install and initialize the Cloud SDK using this link https://cloud.google.com/sdk/docs/?hl=de and install docker with this link https://docs.docker.com/install/linux/docker-ce/ubuntu/
 
  if hash "gcloud" 2>/dev/null; then
-    echo 'Google cloud SDK is installed. Please wait a few seconds..' 
+    echo 'Google cloud SDK is installed. Please wait a few seconds..'
     echo 'Follow the link to log in please!'
    gcloud auth login
  echo " We will process.."
@@ -31,15 +31,15 @@ echo ""
    CHECK=false;
     echo 'Google cloud SDK is not installed. Please follow the instructions here: https://cloud.google.com/sdk/install'
   fi
-  
-  
+
+
   if hash "npm" 2>/dev/null; then
     echo 'npm is installed'
   else
    CHECK=false;
     echo 'npm is missing. Please download Node.js and follow the instructions in the link: https://www.npmjs.com/get-npm '
   fi
-  
+
 
 
     if hash "geth" 2>/dev/null; then
@@ -48,14 +48,14 @@ echo ""
    CHECK=false;
     echo 'geth is missing. Please follow this link https://github.com/ethereum/go-ethereum/wiki/Installing-Geth to install geth'
   fi
-  
+
     if hash "puppeth" 2>/dev/null; then
     echo 'puppeth is installed'
   else
    CHECK=false;
     echo 'puppeth is missing. Please follow this link https://www.sitepoint.com/puppeth-introduction/ to install puppeth'
   fi
-  
+
   echo ""
    cd bin
 
@@ -70,32 +70,32 @@ if hash "caliper" 2>/dev/null; then
   fi
 cd -
 echo ""
-  
+
   echo "Let's make sure that the needed python libraries are installed! "
   echo ""
-  
+
   if python -c 'import pkgutil; exit(not pkgutil.find_loader("pandas"))'; then
     echo 'pandas is found'
 else
     echo 'pandas is not found. We will install it now.'
-     pip install pandas 
+     pip install pandas
     echo 'pandas is installed'
 fi
 
-  
+
   if python -c 'import pkgutil; exit(not pkgutil.find_loader("lxml"))'; then
     echo 'lxml is found'
 else
     echo 'lxml is not found. We will install it now.'
-    pip install lxml 
+    pip install lxml
     echo 'lxml is installed'
 fi
-  
+
   if python -c 'import pkgutil; exit(not pkgutil.find_loader("matplotlib"))'; then
     echo 'matplotlib is found'
 else
     echo 'matplotlib is not found. We will install it now.'
-    pip install matplotlib 
+    pip install matplotlib
     echo 'matplotlib is installed'
 fi
 
@@ -103,19 +103,17 @@ if python -c 'import pkgutil; exit(not pkgutil.find_loader("numpy"))'; then
     echo 'numpy is found'
 else
     echo 'numpy is not found. We will install it now.'
-    pip install numpy 
+    pip install numpy
     echo 'numpy is installed'
 fi
-  echo ""
-  echo "Let's run the template 61-skript-TODO"
- # ../Template61- I need to know the path
- echo ""
- 
- 
- if $CHECK; 
+  echo "Running script to create templates"
+  sh ./create-template.sh
+  echo "Templates created and Ethereum installed."
+
+
+ if $CHECK;
 then
 echo "Pre-requisites are all checked. Success" ;
 else
 echo "Not all the Pre-requisites are installed.";
 fi
-
