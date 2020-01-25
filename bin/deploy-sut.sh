@@ -48,6 +48,10 @@ gcloud compute instance-groups managed create ${INSTANCE_GROUP_NAME} \
    --size ${NUMBER_NODES} \
    --template ${INSTANCE_TEMPLATE}
 
+gcloud compute instance-groups managed set-autoscaling ${INSTANCE_GROUP_NAME} \
+  --max-num-replicas=${NUMBER_NODES} \
+  --min-num-replicas=${NUMBER_NODES}
+
 echo SLEEPING FOR 30 SECONDS TO MAKE SURE INSTANCES ARE UP!
 sleep 30
 fi
