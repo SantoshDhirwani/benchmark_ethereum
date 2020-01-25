@@ -1,6 +1,7 @@
 {
     "eth_param": {
-        "nodeNumber": 2
+        "nodeNumber": 2,
+        "templateName": "ethtemplate"
     },
     "test_param": {
     	"maxGas": 15000000,
@@ -12,5 +13,8 @@
 	},
 	"run_caliper": {
 		"attempt": 3
-	}
+	},
+	"USERNAME": "cloudproto",
+	"PASSWORD":"cloudproto",
+	"NETWORK_ID": 123
 }
