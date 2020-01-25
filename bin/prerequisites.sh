@@ -107,7 +107,7 @@ else
     echo 'numpy is installed'
 fi
   echo "Running script to create templates"
-  sh ./create-template.sh
+  sh create-template.sh
   echo "Templates created and Ethereum installed."
 
 
