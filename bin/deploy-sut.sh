@@ -11,9 +11,16 @@ NEW_SETUP=${4}
 INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=ethereum-sut-template
-USERNAME=cloudproto
-PASSWORD=cloudproto
-NETWORK_ID=123
+#receiving the values of Username, Password and NetworkID from config.json
+USERNAME=( $(jq -r '.USERNAME'  ../config/config.json));
+
+
+PASSWORD=( $(jq -r '.PASSWORD'  ../config/config.json));
+
+NETWORK_ID=( $(jq -r '.NETWORK_ID'  ../config/config.json));
+
+
+
 # clean previous sut
 
 
@@ -65,7 +72,7 @@ BOOTNODE_ENODE=enode://${hex}@${IP_BOOTNODE}:30310?discport=30310
 echo THE BOOTNODE ENODE ADDRESS IS: ${BOOTNODE_ENODE}
 
 prefix=$(gcloud compute instance-groups managed list --format='value(baseInstanceName)' --filter='name~^'${INSTANCE_GROUP_NAME}'')
-INSTANCE_LIST=( $(gcloud compute instances list --filter="name~^${prefix}" --format='value(name)') )
+INSTANCE_LIST=( $(gcloud compute instances list --sort-by ~NAME --filter="name~^${prefix}" --format='value(name)') )
 ACCOUNT_LIST=()
 
 # create accounts on nodes
@@ -80,7 +87,7 @@ for index in ${!INSTANCE_LIST[@]}; do
 done
 
 ACCOUNT_STRING=""
-INSTANCE_IP_LIST=( $(gcloud compute instances list --filter="name~^${prefix}" --format='value(EXTERNAL_IP)') )
+INSTANCE_IP_LIST=( $(gcloud compute instances list --sort-by ~NAME --filter="name~^${prefix}" --format='value(EXTERNAL_IP)') )
 INSTANCES_STRING=""
 
 for index in ${!ACCOUNT_LIST[@]}; do
