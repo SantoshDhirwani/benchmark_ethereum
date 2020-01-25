@@ -133,7 +133,7 @@ def find_min_gas_limit(config, interval):
             # run_file(
             #    ['sh', _get_path('test.sh'),
             #     str(config['test_param']['defaultInterval']), str(gas)])
-            if accuracy <= (abs(upper_bound - lower_bound)):
+            if accuracy >= (abs(upper_bound - lower_bound)):
                 break
             else:
                 upper_bound = int((upper_bound + lower_bound) / 2)
