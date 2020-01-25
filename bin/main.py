@@ -165,7 +165,7 @@ def find_optimal_parameters():
     gas_step = config["test_param"]["gasStep"]
     interval_step = config["test_param"]["intervalStep"]
     # obtaining minimum block interval
-    interval = find_min_interval(config)
+    interval = find_min_interval()
     if interval < 0:
         print("Tool execution failed.")
         exit(-1)
@@ -175,7 +175,7 @@ def find_optimal_parameters():
     while not optimal:
         stop_reached = False
         # Finding the minimum block gas limit
-        gas = find_min_gas_limit(config, interval)
+        gas = find_min_gas_limit(interval)
         if gas < 0:
             # failed to get minimum block gas limit for x interval. Stopping tool execution
             stop_reached = True
