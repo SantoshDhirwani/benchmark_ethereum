@@ -1,4 +1,0 @@
-Name,Succ,Fail,Send Rate (TPS),Max Latency (s),Min Latency (s),Avg Latency (s),Throughput (TPS),fileName,ExperimentNo,gasLimit,blockInterval
-open,100,0,50.6,4.2,2.15,3.59,18.9,2second-8000000.html,0,8000000.0,2.0
-open,100,0,50.6,4.31,2.2,3.56,18.2,2second-16000000.html,1,16000000.0,2.0
-open,100,0,50.6,5.07,2.52,4.06,16.0,2second-4000000.html,2,4000000.0,2.0
