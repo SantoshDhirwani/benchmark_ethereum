@@ -23,5 +23,5 @@ then
 else
     #delete report and return exit code
     rm -r ../caliper-reports/${REPORTNAME} 
-    exit 1
+    exit -1
 fi 
