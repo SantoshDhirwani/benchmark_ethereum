@@ -173,6 +173,7 @@ def find_optimal_parameters():
     optimal = False
 
     while not optimal:
+        print("Benchmarking with block interval of " + str(interval) + " seconds.")
         stop_reached = False
         # Finding the minimum block gas limit
         gas = find_min_gas_limit(interval)
@@ -180,6 +181,7 @@ def find_optimal_parameters():
             # failed to get minimum block gas limit for x interval. Stopping tool execution
             stop_reached = True
         while not stop_reached:
+            print("Benchmarking with block interval of " + str(interval) + " seconds and " + str(gas) + " gas limit.")
             # benchmarking with block interval x and block gas limit y
             try:
                 run_file(
@@ -207,6 +209,7 @@ def find_optimal_parameters():
                     if not improvement:
                         # yes
                         stop_reached = True
+                        print("Improvement less than the sensitivity given, last feasible gas limit found")
                     else:
                         # no
                         gas += gas_step
@@ -218,6 +221,7 @@ def find_optimal_parameters():
                     str(interval), str(gas), e))
                 # Crash found, yes
                 stop_reached = True
+                print("Crash in benchmarking execution, last feasible gas limit found")
 
         # optimal gas limit for x block interval found, getting the best TPS of this x block interval
         max_key = 0
@@ -227,7 +231,9 @@ def find_optimal_parameters():
                 max_value = value
                 max_key = key
         last_peak = max_value
-
+        print(
+            "Peak in block interval " + interval + " seconds found. Found in "
+            + max_key + " gas limit with " + last_peak + " TPS.")
         # saving the last peak in the array of peaks
         peaks.append({str(interval) + ":" + str(max_key), max_value})
         # can we improve more the tps?
@@ -242,6 +248,7 @@ def find_optimal_parameters():
             if not improvement:
                 # no
                 optimal = True
+                print("Improvement less than the sensitivity given, last feasible combination found")
             else:
                 # yes
                 interval += interval_step
@@ -274,8 +281,7 @@ if __name__ == '__main__':
          str(config['test_param']['defaultGas']), '1'])
 
     result = find_optimal_parameters()
-    print(result)
-
+    print("Best result found: " + result)
 
     print('Aggregating all the workload reports')
     run_file(['python', _get_path('aggregate-html-reports.py')])
