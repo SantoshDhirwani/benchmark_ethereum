@@ -232,8 +232,8 @@ def find_optimal_parameters():
                 max_key = key
         last_peak = max_value
         print(
-            "Peak in block interval " + interval + " seconds found. Found in "
-            + max_key + " gas limit with " + last_peak + " TPS.")
+            "Peak in block interval " + str(interval) + " seconds found. Found in "
+            + str(max_key) + " gas limit with " + str(last_peak) + " TPS.")
         # saving the last peak in the array of peaks
         peaks.append({str(interval) + ":" + str(max_key), max_value})
         # can we improve more the tps?
@@ -281,7 +281,7 @@ if __name__ == '__main__':
          str(config['test_param']['defaultGas']), '1'])
 
     result = find_optimal_parameters()
-    print("Best result found: " + result)
+    print("Best result found: " + str(result))
 
     print('Aggregating all the workload reports')
     run_file(['python', _get_path('aggregate-html-reports.py')])
