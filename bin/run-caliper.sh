@@ -16,10 +16,13 @@ npx caliper benchmark run \
     --caliper-report-path "../caliper-reports/${REPORTNAME}" \
 > caliper-status.txt
 
+#waiting for the first script fully finish
+wait
+
 #reading txt find the string stating benchmarking run succesful
-if grep -Fxq "Benchmark run succesful" caliper-status.txt
+if grep -Fxq "Benchmark run successful" caliper-status.txt
 then
-    echo "Benchmark run succesfully"
+    echo "Benchmark run successful"
 else
     #delete report and return exit code
     rm -r ../caliper-reports/${REPORTNAME} 
