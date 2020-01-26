@@ -9,5 +9,22 @@ REPORTNAME=${1}
 #npm install web3
 #npm install --only=prod @hyperledger/caliper-cli
 #npx caliper bind --caliper-bind-sut ethereum --caliper-bind-sdk 1.2.1 --caliper-cwd ./ --caliper-bind-args="-g"
-npx caliper benchmark run --caliper-workspace caliper-config --caliper-benchconfig scenario/simple/config.yaml --caliper-networkconfig networks/ethereum/1node-clique/ethereum.json --caliper-report-path "../caliper-reports/${REPORTNAME}"
-exit 0
+npx caliper benchmark run \
+    --caliper-workspace caliper-config \
+    --caliper-benchconfig scenario/simple/config.yaml \
+    --caliper-networkconfig networks/ethereum/1node-clique/ethereum.json \
+    --caliper-report-path "../caliper-reports/${REPORTNAME}" \
+> caliper-status.txt
+
+#waiting for the first script fully finish
+wait
+
+#reading txt find the string stating benchmarking run succesful
+if grep -Fxq "Benchmark run successful" caliper-status.txt
+then
+    echo "Benchmark run successful"
+else
+    #delete report and return exit code
+    rm -r ../caliper-reports/${REPORTNAME} 
+    exit -1
+fi 

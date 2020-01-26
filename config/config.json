@@ -1,4 +1,6 @@
 {
+  <<<<<<<
+  HEAD
   "eth_param": {
     "nodeNumber": 2,
     "templateName": "ethtemplate"
@@ -14,6 +16,9 @@
     "intervalStep": 1,
     "numberTrials": 2,
     "sensitivity": 0.05
+  },
+  "run_caliper": {
+    "attempt": 3
   },
   "USERNAME": "cloudproto",
   "PASSWORD": "cloudproto",
