@@ -198,7 +198,7 @@ def find_optimal_parameters():
                 last_tps = get_last_tps(interval, gas)
                 results[interval][gas] = last_tps
                 # Is optimal gas limit for x interval found?
-                if len(results[interval]) >= trials:
+                if len(results[interval]) > trials:
                     pos = trials + 1
                     improvement = False
                     while pos > 1:
@@ -237,7 +237,7 @@ def find_optimal_parameters():
         # saving the last peak in the array of peaks
         peaks.append({str(interval) + ":" + str(max_key), max_value})
         # can we improve more the tps?
-        if len(peaks) >= trials:
+        if len(peaks) > trials:
             pos = trials + 1
             improvement = False
             while pos > 1:
