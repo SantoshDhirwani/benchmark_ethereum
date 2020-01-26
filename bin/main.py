@@ -119,7 +119,7 @@ def find_min_gas_limit(interval):
         # no
         lower_bound = upper_bound
         upper_bound = int(upper_bound * 2)
-
+    working_upper_bound = upper_bound
     upper_bound = int((upper_bound + lower_bound) / 2)
     print("A working gas limit upper bound has been found: " + str(upper_bound))
     accuracy = config["test_param"]["gasLimitAccuracy"]
@@ -127,7 +127,7 @@ def find_min_gas_limit(interval):
     # Benchmarking upper bound
     while True:
         print("Benchmarking with " + str(upper_bound) + " upper bound and " + str(
-            lower_bound) + " to find the minimum gas limit")
+            lower_bound) + " lower bound to find the minimum gas limit")
         try:
             run_file(
                 ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
@@ -146,12 +146,14 @@ def find_min_gas_limit(interval):
                 break
             else:
                 # yes
+                working_upper_bound = upper_bound
                 upper_bound = int((upper_bound + lower_bound) / 2)
         except Exception as e:
             print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
                 str(interval), str(upper_bound), e))
             # no
-            lower_bound = int((upper_bound + lower_bound) / 2)
+            lower_bound = upper_bound
+            upper_bound = int((lower_bound + working_upper_bound) / 2)
 
     print("Minimum gas limit bound found: " + str(upper_bound))
     return upper_bound
