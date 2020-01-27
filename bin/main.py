@@ -247,7 +247,7 @@ def find_optimal_parameters():
             "Peak in block interval " + str(interval) + " seconds found. Found in "
             + str(max_key) + " gas limit with " + str(last_peak) + " TPS.")
         # saving the last peak in the array of peaks
-        peaks.append({str(interval) + ":" + str(max_key), max_value})
+        peaks.append({str(interval) + ":" + str(max_key): max_value})
         # can we improve more the tps?
         if len(peaks) > trials:
             pos = trials + 1
