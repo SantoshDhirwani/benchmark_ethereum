@@ -182,6 +182,7 @@ def find_optimal_parameters():
         if gas < 0:
             # failed to get minimum block gas limit for x interval. Stopping tool execution
             stop_reached = True
+        tries = 0
         while not stop_reached:
             print("Benchmarking with block interval of " + str(interval) + " seconds and " + str(gas) + " gas limit.")
             # benchmarking with block interval x and block gas limit y
@@ -198,6 +199,7 @@ def find_optimal_parameters():
                 #    ['sh', _get_path('test.sh'),
                 #     str(config['test_param']['defaultInterval']), str(gas)])
                 last_tps = get_last_tps(interval, gas)
+                print(str(interval) + "-" + str(gas) + "-" + str(last_tps))
                 results[interval][gas] = last_tps
                 # Is optimal gas limit for x interval found?
                 if len(results[interval]) > trials:
@@ -221,14 +223,20 @@ def find_optimal_parameters():
             except Exception as e:
                 print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
                     str(interval), str(gas), e))
+                results[interval][gas] = -1
                 # Crash found, yes
-                stop_reached = True
+                if tries >= trials:
+                    stop_reached = True
+                else:
+                    gas += gas_step
                 print("Crash in benchmarking execution, last feasible gas limit found")
+            tries += 1
 
         # optimal gas limit for x block interval found, getting the best TPS of this x block interval
         max_key = 0
         max_value = 0
-        for key, value in results[interval]:
+        for key in results[interval]:
+            value = results[interval][key]
             if value > max_value:
                 max_value = value
                 max_key = key

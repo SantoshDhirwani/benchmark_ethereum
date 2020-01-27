@@ -73,7 +73,8 @@ def main():
         # if it reach the maximum attempt, printing error message
         if i == attempt-1:
             print("Meet maximum retry. Running caliper error.")
-            exit(-1)
+            #exit(-1)
+            raise Exception('Caliper execution failed ' + str(attempt) + ' times')
         else:
             print("Caliper retrying...")
             pass
