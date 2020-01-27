@@ -176,6 +176,7 @@ def find_optimal_parameters():
 
     while not optimal:
         print("Benchmarking with block interval of " + str(interval) + " seconds.")
+        results[interval] = {}
         stop_reached = False
         # Finding the minimum block gas limit
         gas = find_min_gas_limit(interval)
@@ -227,9 +228,10 @@ def find_optimal_parameters():
                 # Crash found, yes
                 if tries >= trials:
                     stop_reached = True
+                    print("Crash in benchmarking execution, last feasible gas limit found")
                 else:
                     gas += gas_step
-                print("Crash in benchmarking execution, last feasible gas limit found")
+
             tries += 1
 
         # optimal gas limit for x block interval found, getting the best TPS of this x block interval
