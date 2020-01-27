@@ -200,7 +200,6 @@ def find_optimal_parameters():
                 #    ['sh', _get_path('test.sh'),
                 #     str(config['test_param']['defaultInterval']), str(gas)])
                 last_tps = get_last_tps(interval, gas)
-                print(str(interval) + "-" + str(gas) + "-" + str(last_tps))
                 results[interval][gas] = last_tps
                 # Is optimal gas limit for x interval found?
                 if len(results[interval]) > trials:
@@ -208,7 +207,7 @@ def find_optimal_parameters():
                     improvement = False
                     while pos > 1:
                         tmp = results[interval][gas - (pos * gas_step)] / last_tps
-                        if tmp > sensitivity:
+                        if tmp < sensitivity:
                             improvement = True
                         pos -= 1
                     if not improvement:
@@ -253,8 +252,9 @@ def find_optimal_parameters():
             pos = trials + 1
             improvement = False
             while pos > 1:
+                print(peaks[-pos].values())
                 tmp = next(iter(peaks[-pos].values())) / last_peak
-                if tmp > sensitivity:
+                if tmp < sensitivity:
                     improvement = True
                 pos -= 1
             if not improvement:
