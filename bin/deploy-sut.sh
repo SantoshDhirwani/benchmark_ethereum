@@ -11,18 +11,13 @@ NEW_SETUP=${4}
 INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=ethereum-sut-template
+
 #receiving the values of Username, Password and NetworkID from config.json
-USERNAME=( $(jq -r '.USERNAME'  ../config/config.json));
-
-
-PASSWORD=( $(jq -r '.PASSWORD'  ../config/config.json));
-
-NETWORK_ID=( $(jq -r '.NETWORK_ID'  ../config/config.json));
-
-
+USERNAME=$(jq -r '.USERNAME'  ../config/config.json)
+PASSWORD=$(jq -r '.PASSWORD'  ../config/config.json)
+NETWORK_ID=$(jq -r '.NETWORK_ID'  ../config/config.json)
 
 # clean previous sut
-
 
 if [ X${NEW_SETUP} == "X1" ]
 then
@@ -47,6 +42,10 @@ gcloud compute instance-groups managed create ${INSTANCE_GROUP_NAME} \
    --base-instance-name ethereum-sut \
    --size ${NUMBER_NODES} \
    --template ${INSTANCE_TEMPLATE}
+
+gcloud compute instance-groups managed set-autoscaling ${INSTANCE_GROUP_NAME} \
+  --max-num-replicas=${NUMBER_NODES} \
+  --min-num-replicas=${NUMBER_NODES}
 
 echo SLEEPING FOR 30 SECONDS TO MAKE SURE INSTANCES ARE UP!
 sleep 30
