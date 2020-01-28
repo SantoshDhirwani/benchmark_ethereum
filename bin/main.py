@@ -207,6 +207,7 @@ def find_optimal_parameters():
                     improvement = False
                     while pos > 1:
                         print(str(results[interval][gas - (pos * gas_step)]))
+                        #STILL NEEDS TO BE FIXED
                         tmp = 1 - (results[interval][gas - (pos * gas_step)] / last_tps)
                         print("Sensitivity: " + str(tmp))
                         if tmp > sensitivity:
