@@ -202,12 +202,14 @@ def find_optimal_parameters():
                 last_tps = get_last_tps(interval, gas)
                 results[interval][gas] = last_tps
                 # Is optimal gas limit for x interval found?
-                if len(results[interval]) > trials:
+                if tries > trials:
                     pos = trials + 1
                     improvement = False
                     while pos > 1:
-                        tmp = results[interval][gas - (pos * gas_step)] / last_tps
-                        if tmp < sensitivity:
+                        print(str(results[interval][gas - (pos * gas_step)]))
+                        tmp = 1 - (results[interval][gas - (pos * gas_step)] / last_tps)
+                        print("Sensitivity: " + str(tmp))
+                        if tmp > sensitivity:
                             improvement = True
                         pos -= 1
                     if not improvement:
@@ -225,7 +227,7 @@ def find_optimal_parameters():
                     str(interval), str(gas), e))
                 results[interval][gas] = -1
                 # Crash found, yes
-                if tries >= trials:
+                if tries > trials:
                     stop_reached = True
                     print("Crash in benchmarking execution, last feasible gas limit found")
                 else:
@@ -252,9 +254,9 @@ def find_optimal_parameters():
             pos = trials + 1
             improvement = False
             while pos > 1:
-                print(peaks[-pos].values())
-                tmp = next(iter(peaks[-pos].values())) / last_peak
-                if tmp < sensitivity:
+                print("Peak calc: " + str(peaks[-pos].values()))
+                tmp = 1 - (next(iter(peaks[-pos].values())) / last_peak)
+                if tmp > sensitivity:
                     improvement = True
                 pos -= 1
             if not improvement:
