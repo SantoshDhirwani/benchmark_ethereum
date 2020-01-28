@@ -106,9 +106,9 @@ for index in ${!INSTANCE_LIST[@]}; do
     gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ init genesis.json"
     echo
     echo GENESIS INITIALISED on ${INSTANCE_LIST[index]}
-    ACCOUNT=$(gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ account list | cut -d "{" -f2 | cut -d "}" -f1")
+    ACCOUNT=$(gcloud compute ssh ${UAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ account list | cut -d "{" -f2 | cut -d "}" -f1")
     #start the node
-    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "nohup geth --datadir .ethereum/ --syncmode 'full' --port 30311 --rpc --rpcaddr '0.0.0.0' --rpcport 8501 --rpcapi 'personal,db,eth,net,web3,txpool,miner' --bootnodes \"${BOOTNODE_ENODE}\" --networkid ${NETWORK_ID} --gasprice '1' --unlock 0x${ACCOUNT} --password password --allow-insecure-unlock --nousb --mine > /dev/null 2>&1 &"
+    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "nohup geth --datadir .ethereum/ --syncmode 'full' --port 30311 --rpc --rpcaddr '0.0.0.0' --rpcport 8501 --rpcapi 'personal,db,eth,net,web3,txpool,miner' --bootnodes \"${BOOTNODE_ENODE}\" --networkid ${NETWORK_ID} --gasprice '1' --unlock 0x${ACCOUNT} --password password --allow-insecure-unlock --nousb --mine --rpccorsdomain '*' --nat 'any' > /dev/null 2>&1 &"
     GETH=$( gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "pgrep geth")
     if [ X${GETH} == "X" ]
     then
