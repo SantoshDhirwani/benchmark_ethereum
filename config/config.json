@@ -8,7 +8,13 @@
     	"defaultGas": 10000000,
     	"gasStep": 5000000,
     	"maxInterval": 15,
-    	"defaultInterval": 5,
-    	"intervalStep": 2
-    }
+		"defaultInterval": 5,
+		"intervalStep": 2
+	},
+	"run_caliper": {
+		"attempt": 3
+	},
+	"USERNAME": "cloudproto",
+	"PASSWORD":"cloudproto",
+	"NETWORK_ID": 123
 }

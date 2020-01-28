@@ -10,12 +10,16 @@ BLOCK_SIZE=${3}
 NEW_SETUP=${4}
 INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
-INSTANCE_TEMPLATE=ethtemplate
-USERNAME=cloudproto
-PASSWORD=cloudproto
-NETWORK_ID=123
-# clean previous sut
 
+INSTANCE_TEMPLATE=ethereum-sut-template
+#receiving the values of Username, Password and NetworkID from config.json
+USERNAME=( $(jq -r '.USERNAME'  ../config/config.json));
+
+PASSWORD=( $(jq -r '.PASSWORD'  ../config/config.json));
+
+NETWORK_ID=( $(jq -r '.NETWORK_ID'  ../config/config.json));
+
+# clean previous sut
 
 if [ X${NEW_SETUP} == "X1" ]
 then
@@ -69,7 +73,7 @@ BOOTNODE_ENODE=enode://${hex}@${IP_BOOTNODE}:30310?discport=30310
 echo THE BOOTNODE ENODE ADDRESS IS: ${BOOTNODE_ENODE}
 
 prefix=$(gcloud compute instance-groups managed list --format='value(baseInstanceName)' --filter='name~^'${INSTANCE_GROUP_NAME}'')
-INSTANCE_LIST=( $(gcloud compute instances list --filter="name~^${prefix}" --format='value(name)') )
+INSTANCE_LIST=( $(gcloud compute instances list --sort-by ~NAME --filter="name~^${prefix}" --format='value(name)') )
 ACCOUNT_LIST=()
 
 # create accounts on nodes
@@ -84,7 +88,7 @@ for index in ${!INSTANCE_LIST[@]}; do
 done
 
 ACCOUNT_STRING=""
-INSTANCE_IP_LIST=( $(gcloud compute instances list --filter="name~^${prefix}" --format='value(EXTERNAL_IP)') )
+INSTANCE_IP_LIST=( $(gcloud compute instances list --sort-by ~NAME --filter="name~^${prefix}" --format='value(EXTERNAL_IP)') )
 INSTANCES_STRING=""
 
 for index in ${!ACCOUNT_LIST[@]}; do
@@ -112,7 +116,7 @@ for index in ${!INSTANCE_LIST[@]}; do
     echo GENESIS INITIALISED on ${INSTANCE_LIST[index]}
     ACCOUNT=$(gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ account list | cut -d "{" -f2 | cut -d "}" -f1")
     #start the node
-    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "nohup geth --datadir .ethereum/ --syncmode 'full' --port 30311 --rpc --rpcaddr '0.0.0.0' --rpcport 8501 --rpcapi 'personal,db,eth,net,web3,txpool,miner' --bootnodes \"${BOOTNODE_ENODE}\" --networkid ${NETWORK_ID} --gasprice '1' --unlock 0x${ACCOUNT} --password password --allow-insecure-unlock --nousb --mine > /dev/null 2>&1 &"
+    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "nohup geth --datadir .ethereum/ --syncmode 'full' --port 30311 --rpc --rpcaddr '0.0.0.0' --rpcport 8501 --rpcapi 'personal,db,eth,net,web3,txpool,miner' --bootnodes \"${BOOTNODE_ENODE}\" --networkid ${NETWORK_ID} --gasprice '1' --unlock 0x${ACCOUNT} --password password --allow-insecure-unlock --nousb --mine --rpccorsdomain '*' --nat 'any' > /dev/null 2>&1 &"
     GETH=$( gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "pgrep geth")
     if [ X${GETH} == "X" ]
     then
