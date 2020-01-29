@@ -54,7 +54,7 @@ def run_file(file_path):
 
 
 def check_execution(interval, gaslimit):
-    run_file(['python', _get_path('get-last-throughput.py'), '--interval', str(interval), '--gaslimit',
+    run_file(['python', _get_path('analyzer/get-last-throughput.py'), '--interval', str(interval), '--gaslimit',
                    str(gaslimit)])
     tps = 0
     with open('last-tps', "r") as file:
@@ -73,9 +73,9 @@ def find_min_interval(config):
               str(config['test_param']['defaultGas']) + ' gas limit.')
         try:
             run_file(
-                ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval),
+                ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval),
                  str(config['test_param']['defaultGas']), '0'])
-            run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit',
+            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval), '--gaslimit',
                       str(config['test_param']['defaultGas'])])
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
@@ -102,10 +102,10 @@ def find_min_gas_limit(config):
               str(gas) + ' gas limit.')
         try:
             run_file(
-                ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
+                ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
                  str(config['test_param']['defaultInterval']),
                  str(gas), '0'])
-            run_file(['python', _get_path('run-caliper.py'), '--interval', str(config['test_param']['defaultInterval']),
+            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(config['test_param']['defaultInterval']),
                       '--gaslimit',
                       str(gas)])
             # UNCOMMENT ONLY FOR TESTING PURPOSES
@@ -129,11 +129,11 @@ if __name__ == '__main__':
     config = load_config(CONFIG_PATH)
 
     # Backing up old results
-    run_file(['python', _get_path('backup-old-results.py')])
+    run_file(['python', _get_path('analyzer/backup-old-results.py')])
 
     # Building SUT for the first time
     run_file(
-        ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
+        ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
          str(config['test_param']['defaultInterval']),
          str(config['test_param']['defaultGas']), '1'])
 
@@ -161,13 +161,13 @@ if __name__ == '__main__':
     for interval in intervals:
         for gas in gasLimit:
             print('Building SUT with block interval ' + str(interval) + 's and ' + str(gas) + ' block gas limit')
-            run_file(['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval), str(gas),
+            run_file(['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval), str(gas),
                       '0'])
-            run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit', str(gas)])
+            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval), '--gaslimit', str(gas)])
             #if check_execution(interval, gas) is None:
             break
 
     print('Aggregating all the workload reports')
-    run_file(['python', _get_path('aggregate-html-reports.py')])
+    run_file(['python', _get_path('analyzer/aggregate-html-reports.py')])
     # run_file(['python', _get_path('calculate-optimal-values.py')])
     exit(0)
