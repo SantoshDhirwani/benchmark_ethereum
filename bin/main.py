@@ -2,6 +2,7 @@ from __future__ import print_function
 import os
 import json
 import subprocess
+import queue
 
 CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
@@ -99,6 +100,7 @@ def find_min_interval():
 def find_min_gas_limit(interval):
     upper_bound = config['test_param']['minGas']
     lower_bound = upper_bound
+
     print("Benchmarking to find minimum block gas limit value for block interval dimension of " + str(
         interval) + " seconds.")
     # Benchmarking to get initial upper bound
@@ -162,6 +164,7 @@ def find_min_gas_limit(interval):
 def find_optimal_parameters():
     results = {}
     peaks = []
+    interval_queue = queue.Queue()
     trials = config["test_param"]["numberTrials"]
     sensitivity = config["test_param"]["sensitivity"]
     gas_step = config["test_param"]["gasStep"]
@@ -184,6 +187,7 @@ def find_optimal_parameters():
             # failed to get minimum block gas limit for x interval. Stopping tool execution
             stop_reached = True
         tries = 0
+        gaslimit_queue = queue.Queue()
         while not stop_reached:
             print("Benchmarking with block interval of " + str(interval) + " seconds and " + str(gas) + " gas limit.")
             # benchmarking with block interval x and block gas limit y
@@ -202,17 +206,19 @@ def find_optimal_parameters():
                 last_tps = get_last_tps(interval, gas)
                 results[interval][gas] = last_tps
                 # Is optimal gas limit for x interval found?
-                if tries > trials:
-                    pos = trials + 1
+                if gaslimit_queue.qsize() >= trials:
+                    tmp_queue = queue.Queue()
                     improvement = False
-                    while pos > 1:
-                        print(str(results[interval][gas - (pos * gas_step)]))
-                        #STILL NEEDS TO BE FIXED
-                        tmp = 1 - (results[interval][gas - (pos * gas_step)] / last_tps)
+                    while not gaslimit_queue.empty():
+                        x = gaslimit_queue.get(False)
+                        tmp_queue.put(x)
+                        tmp = 1 - (x / last_tps)
                         print("Sensitivity: " + str(tmp))
                         if tmp > sensitivity:
                             improvement = True
-                        pos -= 1
+                    gaslimit_queue = tmp_queue
+                    gaslimit_queue.get()
+                    gaslimit_queue.put(last_tps)
                     if not improvement:
                         # yes
                         stop_reached = True
@@ -222,11 +228,13 @@ def find_optimal_parameters():
                         gas += gas_step
                 else:
                     # no, we need more trials
+                    gaslimit_queue.put(last_tps)
                     gas += gas_step
             except Exception as e:
                 print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
                     str(interval), str(gas), e))
                 results[interval][gas] = -1
+                gaslimit_queue.put(-1)
                 # Crash found, yes
                 if tries > trials:
                     stop_reached = True
