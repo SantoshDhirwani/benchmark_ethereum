@@ -62,7 +62,7 @@ def check_execution(interval, gaslimit):
     print(tps)
     #TODO check if last value improved enough to continue benchmarking
     return 0
-  
+
 
 def find_min_interval(config):
     intervals = range(1,
