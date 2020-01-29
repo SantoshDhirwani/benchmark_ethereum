@@ -11,18 +11,13 @@ NEW_SETUP=${4}
 INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=ethereum-sut-template
+
 #receiving the values of Username, Password and NetworkID from config.json
-USERNAME=( $(jq -r '.USERNAME'  ../config/config.json));
-
-
-PASSWORD=( $(jq -r '.PASSWORD'  ../config/config.json));
-
-NETWORK_ID=( $(jq -r '.NETWORK_ID'  ../config/config.json));
-
-
+USERNAME=$(jq -r '.USERNAME'  ../config/config.json)
+PASSWORD=$(jq -r '.PASSWORD'  ../config/config.json)
+NETWORK_ID=$(jq -r '.NETWORK_ID'  ../config/config.json)
 
 # clean previous sut
-
 
 if [ X${NEW_SETUP} == "X1" ]
 then
@@ -47,6 +42,10 @@ gcloud compute instance-groups managed create ${INSTANCE_GROUP_NAME} \
    --base-instance-name ethereum-sut \
    --size ${NUMBER_NODES} \
    --template ${INSTANCE_TEMPLATE}
+
+gcloud compute instance-groups managed set-autoscaling ${INSTANCE_GROUP_NAME} \
+  --max-num-replicas=${NUMBER_NODES} \
+  --min-num-replicas=${NUMBER_NODES}
 
 echo SLEEPING FOR 30 SECONDS TO MAKE SURE INSTANCES ARE UP!
 sleep 30
@@ -115,7 +114,7 @@ for index in ${!INSTANCE_LIST[@]}; do
     echo GENESIS INITIALISED on ${INSTANCE_LIST[index]}
     ACCOUNT=$(gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ account list | cut -d "{" -f2 | cut -d "}" -f1")
     #start the node
-    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "nohup geth --datadir .ethereum/ --syncmode 'full' --port 30311 --rpc --rpcaddr '0.0.0.0' --rpcport 8501 --rpcapi 'personal,db,eth,net,web3,txpool,miner' --bootnodes \"${BOOTNODE_ENODE}\" --networkid ${NETWORK_ID} --gasprice '1' --unlock 0x${ACCOUNT} --password password --allow-insecure-unlock --nousb --mine > /dev/null 2>&1 &"
+    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "nohup geth --datadir .ethereum/ --syncmode 'full' --port 30311 --rpc --rpcaddr '0.0.0.0' --rpcport 8501 --rpcapi 'personal,db,eth,net,web3,txpool,miner' --bootnodes \"${BOOTNODE_ENODE}\" --networkid ${NETWORK_ID} --gasprice '1' --unlock 0x${ACCOUNT} --password password --allow-insecure-unlock --nousb --mine --rpccorsdomain '*' --nat 'any' > /dev/null 2>&1 &"
     GETH=$( gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "pgrep geth")
     if [ X${GETH} == "X" ]
     then
