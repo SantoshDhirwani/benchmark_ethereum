@@ -14,7 +14,6 @@
 	"run_caliper": {
 		"attempt": 3
 	},
-  "GCP_SETUP":"0",
 	"USERNAME": "cloudproto",
 	"PASSWORD":"cloudproto",
 	"NETWORK_ID": 123

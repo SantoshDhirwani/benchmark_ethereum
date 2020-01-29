@@ -2,6 +2,11 @@ from __future__ import print_function
 import os
 import json
 import subprocess
+import sys
+
+
+gcp_setup = sys.argv[1] #1: clean previous setup, 0: don't clean previous setup
+
 
 CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
@@ -74,7 +79,7 @@ def find_min_interval(config):
         try:
             run_file(
                 ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval),
-                 str(config['test_param']['defaultGas']), '0'])
+                 str(config['test_param']['defaultGas']), str(gcp_setup)])
             run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit',
                       str(config['test_param']['defaultGas'])])
             # UNCOMMENT ONLY FOR TESTING PURPOSES
@@ -104,7 +109,7 @@ def find_min_gas_limit(config):
             run_file(
                 ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
                  str(config['test_param']['defaultInterval']),
-                 str(gas), '0'])
+                 str(gas), str(gcp_setup)])
             run_file(['python', _get_path('run-caliper.py'), '--interval', str(config['test_param']['defaultInterval']),
                       '--gaslimit',
                       str(gas)])
@@ -135,7 +140,7 @@ if __name__ == '__main__':
     run_file(
         ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
          str(config['test_param']['defaultInterval']),
-         str(config['test_param']['defaultGas']), '1'])
+         str(config['test_param']['defaultGas']), str(gcp_setup)])
 
     # Finding the minimum block interval
     min_interval = find_min_interval(config)
@@ -162,7 +167,7 @@ if __name__ == '__main__':
         for gas in gasLimit:
             print('Building SUT with block interval ' + str(interval) + 's and ' + str(gas) + ' block gas limit')
             run_file(['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval), str(gas),
-                      '0'])
+                      str(gcp_setup)])
             run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit', str(gas)])
             #if check_execution(interval, gas) is None:
             break

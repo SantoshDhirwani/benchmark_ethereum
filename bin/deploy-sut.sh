@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 #Deploy SUT script
-# ./deploy-sut.sh <number of nodes> <block interval> <block size>
+# ./deploy-sut.sh <number of nodes> <block interval> <block size> <1: clean, 0: don't clean previous setup>
 
 set -e
 
 NUMBER_NODES=${1}
 BLOCK_INTERVAL=${2}
 BLOCK_SIZE=${3}
+NEW_SETUP=${4}
 INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=ethereum-sut-template
 
-#receiving the values of GCP Setup, Username, Password and NetworkID from config.json
-NEW_SETUP=$(jq -r '.GCP_SETUP'  ../config/config.json) # 1: clean, 0: don't clean previous setup
+#receiving the values of Username, Password and NetworkID from config.json
 USERNAME=$(jq -r '.USERNAME'  ../config/config.json)
 PASSWORD=$(jq -r '.PASSWORD'  ../config/config.json)
 NETWORK_ID=$(jq -r '.NETWORK_ID'  ../config/config.json)
