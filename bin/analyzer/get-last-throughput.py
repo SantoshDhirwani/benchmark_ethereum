@@ -28,7 +28,7 @@ def parse_file(files):
 def main():
     print('Obtaining last result from the caliper report...')
     config = load_args()
-    last_report = 'caliper-reports/' + config.interval + 'seconds-' + config.gaslimit + '.html'
+    last_report = 'workload/caliper-reports/' + config.interval + 'seconds-' + config.gaslimit + '.html'
     files = glob.glob(last_report)
     tps = parse_file(files)
     with open('last-tps', "w") as file:

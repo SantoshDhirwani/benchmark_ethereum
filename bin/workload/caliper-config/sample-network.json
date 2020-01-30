@@ -15,7 +15,7 @@
         "transactionConfirmationBlocks": 2,
         "contracts": {
             "simple": {
-                "path": "src/ethereum/simple/simple.json"
+                "path": "caliper-config/src/ethereum/simple/simple.json"
             }
         }
     }

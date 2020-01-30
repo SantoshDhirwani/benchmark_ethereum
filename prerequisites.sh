@@ -22,15 +22,15 @@ echo ""
   #Install and initialize the Cloud SDK using this link https://cloud.google.com/sdk/docs/?hl=de and install docker with this link https://docs.docker.com/install/linux/docker-ce/ubuntu/
 
  if hash "gcloud" 2>/dev/null; then
-    echo 'Google cloud SDK is installed. Please wait a few seconds..'
-    echo 'Follow the link to log in please!'
-   gcloud auth login
+  echo 'Google cloud SDK is installed. Please wait a few seconds..'
+   echo 'Follow the link to log in please!'
+ gcloud auth login
  echo " We will process.."
 
-  else
-   CHECK=false;
-    echo 'Google cloud SDK is not installed. Please follow the instructions here: https://cloud.google.com/sdk/install'
-  fi
+ else
+  CHECK=false;
+   echo 'Google cloud SDK is not installed. Please follow the instructions here: https://cloud.google.com/sdk/install'
+ fi
 
 
   if hash "npm" 2>/dev/null; then
@@ -106,10 +106,12 @@ else
     pip install numpy
     echo 'numpy is installed'
 fi
-  echo "Running script to create templates"
-  sh bin/create-template.sh
-  echo "Templates created and Ethereum installed."
+cd bin/sut
 
+  echo "Running script to create templates"
+  sh  create-template.sh
+  echo "Templates created and Ethereum installed."
+cd - ;
 
  if $CHECK;
 then

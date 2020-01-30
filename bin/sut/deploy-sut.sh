@@ -10,7 +10,7 @@ BLOCK_SIZE=${3}
 NEW_SETUP=${4}
 INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
-INSTANCE_TEMPLATE=ethereum-sut-template
+INSTANCE_TEMPLATE=ethtemplate
 
 #receiving the values of Username, Password and NetworkID from config.json
 USERNAME=$(jq -r '.USERNAME'  ../config/config.json)

@@ -10,10 +10,10 @@ REPORTNAME=${1}
 #npm install --only=prod @hyperledger/caliper-cli
 #npx caliper bind --caliper-bind-sut ethereum --caliper-bind-sdk 1.2.1 --caliper-cwd ./ --caliper-bind-args="-g"
 npx caliper benchmark run \
-    --caliper-workspace caliper-config \
-    --caliper-benchconfig scenario/simple/config.yaml \
-    --caliper-networkconfig networks/ethereum/1node-clique/ethereum.json \
-    --caliper-report-path "../caliper-reports/${REPORTNAME}" \
+    --caliper-workspace workload/ \
+    --caliper-benchconfig caliper-config/scenario/simple/config.yaml \
+    --caliper-networkconfig caliper-config/networks/ethereum/1node-clique/ethereum.json \
+    --caliper-report-path "caliper-reports/${REPORTNAME}" \
 > caliper-status.txt
 
 #waiting for the first script fully finish
@@ -25,6 +25,6 @@ then
     echo "Benchmark run successful"
 else
     #delete report and return exit code
-    rm -r ../caliper-reports/${REPORTNAME} 
+    rm -r workload/caliper-reports/${REPORTNAME}
     exit -1
 fi 

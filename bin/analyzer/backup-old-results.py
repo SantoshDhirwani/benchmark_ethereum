@@ -36,8 +36,8 @@ def backup(filename, currentdir, newdir, dt_string):
 if __name__ == '__main__':
     dt_string = datetime.now().strftime("%d%m%Y%H%M%S")
 
-    backup("reports-backup-", "caliper-reports/", "old/old-reports/", dt_string)
-    delete("caliper-reports/")
+    backup("reports-backup-", "workload/caliper-reports/", "analyzer/old/old-reports/", dt_string)
+    delete("workload/caliper-reports/")
 
-    backup("aggregated-backup-", "aggregated-results/", "old/old-aggregated-results/", dt_string)
-    delete("aggregated-results/")
+    backup("aggregated-backup-", "analyzer/aggregated-results/", "analyzer/old/old-aggregated-results/", dt_string)
+    delete("analyzer/aggregated-results/")
