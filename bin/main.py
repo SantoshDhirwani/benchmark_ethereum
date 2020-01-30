@@ -57,7 +57,7 @@ def run_file(file_path):
 
 
 def get_last_tps(interval, gaslimit):
-    run_file(['python', _get_path('get-last-throughput.py'), '--interval', str(interval), '--gaslimit',
+    run_file(['python', _get_path('analyzer/get-last-throughput.py'), '--interval', str(interval), '--gaslimit',
               str(gaslimit)])
     tps = 0
     with open('last-tps', "r") as file:
@@ -77,9 +77,9 @@ def find_min_interval():
               str(config['test_param']['defaultGas']) + ' gas limit.')
         try:
             run_file(
-                ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval),
+                ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval),
                  str(config['test_param']['defaultGas']), '0'])
-            run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit',
+            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval), '--gaslimit',
                       str(config['test_param']['defaultGas'])])
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
@@ -107,10 +107,10 @@ def find_min_gas_limit(interval):
     while True:
         try:
             run_file(
-                ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
+                ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
                  str(interval),
                  str(upper_bound), '0'])
-            run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval),
+            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval),
                       '--gaslimit',
                       str(upper_bound)])
             # yes
@@ -132,10 +132,10 @@ def find_min_gas_limit(interval):
             lower_bound) + " lower bound to find the minimum gas limit")
         try:
             run_file(
-                ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
+                ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
                  str(interval),
                  str(upper_bound), '0'])
-            run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval),
+            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval),
                       '--gaslimit',
                       str(upper_bound)])
             # UNCOMMENT ONLY FOR TESTING PURPOSES
@@ -193,10 +193,10 @@ def find_optimal_parameters():
             # benchmarking with block interval x and block gas limit y
             try:
                 run_file(
-                    ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
+                    ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
                      str(interval),
                      str(gas), '0'])
-                run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval),
+                run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval),
                           '--gaslimit',
                           str(gas)])
                 # UNCOMMENT ONLY FOR TESTING PURPOSES
@@ -295,18 +295,17 @@ if __name__ == '__main__':
     print('Starting tool execution...')
 
     # Backing up old results
-    run_file(['python', _get_path('backup-old-results.py')])
+    run_file(['python', _get_path('analyzer/backup-old-results.py')])
 
     # Building SUT for the first time
     run_file(
-        ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
+        ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
          str(config['test_param']['maxInterval']),
          str(config['test_param']['defaultGas']), '1'])
 
     result = find_optimal_parameters()
     print("Best result found: " + str(result))
-
     print('Aggregating all the workload reports')
-    run_file(['python', _get_path('aggregate-html-reports.py')])
+    run_file(['python', _get_path('analyzer/aggregate-html-reports.py')])
     # run_file(['python', _get_path('calculate-optimal-values.py')])
     exit(0)
