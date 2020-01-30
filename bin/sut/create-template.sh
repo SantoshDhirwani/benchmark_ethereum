@@ -9,7 +9,7 @@ INSTANCE_NAME=${VM_TEMPLATE_NAME}
 ZONE=europe-west1-b
 IMAGE_FAMILY=ubuntu-1804-lts
 IMAGE_PROJECT=ubuntu-os-cloud
-SCRIPT_PATH=./sut/startup-script.sh
+SCRIPT_PATH=./startup-script.sh
 ############################################################
 echo "VM Template Name" $VM_TEMPLATE_NAME
 
