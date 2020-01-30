@@ -6,7 +6,7 @@
 
 
 Our goals were to achieve :
-1) Performance Benchmarking. Benchmarking the performance of private Ethereum with Proof-of-Authority consensus  while maximizing Throughput depending on Block size and Block interval. 
+1) Performance Benchmarking. Benchmarking the performance of private Ethereum with Proof-of-Authority consensus  while maximizing throughput depending on block size and block interval. 
 2) Automation. Scaling dynamically the SUT and to derive and present a few high-level guidelines reducing the complexity of implementing and running blockchain benchmarking performance, which would be valuable to developers and deployment engineers.
 
 
@@ -129,7 +129,23 @@ Network_ID to verify the network we are setting the nodes.
 		
 		
 		
-**Documentation**
+## Documentation
 This file serves the user to have a more in depth-learning of this tool and how it was organised and developed by the team.
+
+
+## Docker
+For future work, we can run in Docker.
+We import from [ethereum/client-go:alltools-stable](https://hub.docker.com/r/ethereum/client-go)  as it has most of the tools we need.
+
+So far we have three images:
+
+### Bootnode Image
+In oder to achieve loose coupling among the nodes we need to start a bootnode which will take the boot.key as input and will listen to port 3031
+
+### Ethereum Node Image
+Takes for input the genesis file and bootnode (just paste address in the bootnode file) and start a node on the default port. You don't need to create an account for this node as it fully automated within the image.
+
+### Sealer Node Image
+Takes for input the genesis file and bootnode (just add the address in the bootnode file) and start a mining node that could seal on the default port. It also generated the genesis file accordingly. As Sealers should be in the genesis.json.
 
 
