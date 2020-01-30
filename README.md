@@ -36,7 +36,26 @@ Our goals were to achieve :
 │       └── get-last-throughput
 │── config
 │      └── config.json
-│      
+│
+├── Docker
+│   ├── bootnode
+│   │   ├── boot.key
+│   │   ├── Dockerfile
+│   │   ├── init-bootnode.sh
+│   │   ├── karim-harmony.json
+│   │   └── karim.json
+│   ├── ether-node
+│   │   ├── bootnode
+│   │   ├── Dockerfile
+│   │   ├── genesis.json
+│   │   ├── init-ether.sh
+│   │   └── password
+│   └── sealer-node
+│       ├── bootnode
+│       ├── Dockerfile
+│       ├── init-sealer.sh
+│       └── password
+│
 │──  documentation
 └──README.md
       
@@ -45,14 +64,14 @@ Our goals were to achieve :
 
 
 
-##Getting started
+## Getting started
 
 These instruction will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 git clone https://github.com/Cloud-Prototyping-WS-2019-20/cp_ws_1920.git
 
 
-##Prerequisites
+## Prerequisites
 
 The script checks if the needed dependencies are installed or how to install them. It also runs the script  create-template.sh  to create VM templates.
 
@@ -72,13 +91,13 @@ Caliper
 Note: If you have jq,npm, geth, puppeth and gcloud not installed, you will be provided with the links to follow the easy steps of installing them. This script does not provide their installation, because each user have different OS, and you need to download and install the packages depending on the enviroment you are working from.
 
 
-##Starting the tool
+## Starting the tool
 
 cd cp_ws_1920/bin
 python main.py
 
 
-##Config (TO-Be-Discussed)
+## Config (TO-Be-Discussed)
 
 config.json has its objects read by the scripts main.py , deploy-sut.sh , create-template.sh and run-caliper.py .
 
@@ -86,7 +105,7 @@ USERNAME is needed for the authentication when computing ssh.
 PASSWORD is needed for the authentication as well, when new accounts on nodes are created.
 Network_ID to verify the network we are setting the nodes.
 
-###Under "eth_param" we have:
+### Under "eth_param" we have:
 
 "templateName", which names the VM instances when they are created. It will be called by bin/sut/create-template.sh
 "nodeNumber", when building SUT for the first time, we need at least 2 nodes to set-up private Ethereum on Google Cloud Platform
