@@ -3,9 +3,17 @@ import os
 import json
 import subprocess
 import queue
+import time
 
 CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
-
+ANALYZER_PATH ="analyzer/"
+SUT_PATH = "sut/"
+WORKLOAD_PATH = "workload/"
+DEPLOY_SUT_PATH = SUT_PATH + "deploy-sut.sh"
+RUN_WORKLOAD_PATH = WORKLOAD_PATH + "run-caliper.py"
+AGGREGATE_RESULTS_PATH = ANALYZER_PATH + "aggregate-html-reports.py"
+GET_LAST_RESULT_PATH = ANALYZER_PATH + "get-last-throughput.py"
+BACKUP_PATH = ANALYZER_PATH + "backup-old-results.py"
 
 def _get_path(filename):
     return os.path.join(CURRENT_FOLDER, filename)
@@ -57,7 +65,7 @@ def run_file(file_path):
 
 
 def get_last_tps(interval, gaslimit):
-    run_file(['python', _get_path('analyzer/get-last-throughput.py'), '--interval', str(interval), '--gaslimit',
+    run_file(['python', _get_path(GET_LAST_RESULT_PATH), '--interval', str(interval), '--gaslimit',
               str(gaslimit)])
     tps = 0
     with open('last-tps', "r") as file:
@@ -77,9 +85,9 @@ def find_min_interval():
               str(config['test_param']['defaultGas']) + ' gas limit.')
         try:
             run_file(
-                ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval),
+                ['sh', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']), str(interval),
                  str(config['test_param']['defaultGas']), '0'])
-            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval), '--gaslimit',
+            run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval), '--gaslimit',
                       str(config['test_param']['defaultGas'])])
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
@@ -107,10 +115,10 @@ def find_min_gas_limit(interval):
     while True:
         try:
             run_file(
-                ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
+                ['sh', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                  str(interval),
                  str(upper_bound), '0'])
-            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval),
+            run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
                       '--gaslimit',
                       str(upper_bound)])
             # yes
@@ -132,10 +140,10 @@ def find_min_gas_limit(interval):
             lower_bound) + " lower bound to find the minimum gas limit")
         try:
             run_file(
-                ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
+                ['sh', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                  str(interval),
                  str(upper_bound), '0'])
-            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval),
+            run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
                       '--gaslimit',
                       str(upper_bound)])
             # UNCOMMENT ONLY FOR TESTING PURPOSES
@@ -193,10 +201,10 @@ def find_optimal_parameters():
             # benchmarking with block interval x and block gas limit y
             try:
                 run_file(
-                    ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
+                    ['sh', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                      str(interval),
                      str(gas), '0'])
-                run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval),
+                run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
                           '--gaslimit',
                           str(gas)])
                 # UNCOMMENT ONLY FOR TESTING PURPOSES
@@ -293,19 +301,20 @@ def find_optimal_parameters():
 
 if __name__ == '__main__':
     print('Starting tool execution...')
-
+    start_time = time.time()
     # Backing up old results
-    run_file(['python', _get_path('analyzer/backup-old-results.py')])
+    run_file(['python', _get_path(BACKUP_PATH)])
 
     # Building SUT for the first time
     run_file(
-        ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
+        ['sh', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
          str(config['test_param']['maxInterval']),
          str(config['test_param']['defaultGas']), '1'])
 
     result = find_optimal_parameters()
     print("Best result found: " + str(result))
     print('Aggregating all the workload reports')
-    run_file(['python', _get_path('analyzer/aggregate-html-reports.py')])
-    # run_file(['python', _get_path('calculate-optimal-values.py')])
+    run_file(['python', _get_path(AGGREGATE_RESULTS_PATH)])
+    exec_time = (time.time() - start_time)
+    print("Execution time: " + exec_time)
     exit(0)
