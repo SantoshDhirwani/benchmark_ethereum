@@ -2,7 +2,7 @@ import glob
 import pandas as pd
 
 reportsDir = 'workload/caliper-reports/*.html'
-resultsDir = 'aggregated-results/'
+resultsDir = 'analyzer/aggregated-results/'
 files = glob.glob(reportsDir)
 
 my_tables = []

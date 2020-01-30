@@ -171,5 +171,3 @@ if __name__ == '__main__':
     run_file(['python', _get_path('analyzer/aggregate-html-reports.py')])
     # run_file(['python', _get_path('calculate-optimal-values.py')])
     exit(0)
-
-    
