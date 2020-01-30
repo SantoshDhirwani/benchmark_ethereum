@@ -316,5 +316,5 @@ if __name__ == '__main__':
     print('Aggregating all the workload reports')
     run_file(['python', _get_path(AGGREGATE_RESULTS_PATH)])
     exec_time = (time.time() - start_time)
-    print("Execution time: " + exec_time)
+    print("Execution time: " + str(exec_time))
     exit(0)
