@@ -129,7 +129,7 @@ Network_ID to verify the network we are setting the nodes.
 		
 		
 		
-##Documentation
+**Documentation**
 This file serves the user to have a more in depth-learning of this tool and how it was organised and developed by the team.
 
 
