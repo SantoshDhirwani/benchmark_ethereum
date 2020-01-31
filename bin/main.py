@@ -3,6 +3,8 @@ import os
 import sys
 import json
 import subprocess
+import queue
+import time
 
 CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
@@ -14,6 +16,16 @@ verbose_level = int(sys.argv[1])
 VERBOSE_LEVEL_0 = 0
 VERBOSE_LEVEL_1 = 1
 VERBOSE_LEVEL_2 = 2
+
+ANALYZER_PATH ="analyzer/"
+SUT_PATH = "sut/"
+WORKLOAD_PATH = "workload/"
+DEPLOY_SUT_PATH = SUT_PATH + "deploy-sut.sh"
+RUN_WORKLOAD_PATH = WORKLOAD_PATH + "run-caliper.py"
+AGGREGATE_RESULTS_PATH = ANALYZER_PATH + "aggregate-html-reports.py"
+GET_LAST_RESULT_PATH = ANALYZER_PATH + "get-last-throughput.py"
+BACKUP_PATH = ANALYZER_PATH + "backup-old-results.py"
+
 
 def _get_path(filename):
     return os.path.join(CURRENT_FOLDER, filename)
@@ -33,6 +45,9 @@ def load_config(path):
         message = "You have an incorrect config structure: {}"
         reason = "Can't load config from the 'config' folder"
         raise KeyError(message.format(reason))
+
+
+config = load_config(CONFIG_PATH)
 
 
 def run_file(file_path, verbose=True):
@@ -63,36 +78,37 @@ def run_file(file_path, verbose=True):
             break
 
 
-
-def check_execution(interval, gaslimit):
-    run_file(['python', _get_path('analyzer/get-last-throughput.py'), '--interval', str(interval), '--gaslimit',
-                   str(gaslimit)], verbose=verbose_level==VERBOSE_LEVEL_2)
+def get_last_tps(interval, gaslimit):
+    run_file(['python', _get_path(GET_LAST_RESULT_PATH), '--interval', str(interval), '--gaslimit',
+              str(gaslimit)], verbose=verbose_level==VERBOSE_LEVEL_2)
     tps = 0
     with open('last-tps', "r") as file:
         tps = float(file.read())
-    print(tps)
-    #TODO check if last value improved enough to continue benchmarking
-    return 0
+    print("Last execution tps for block interval " + str(interval) + " seconds and " + str(
+        gaslimit) + " gas limit: " + str(tps))
+    return tps
 
 
-def find_min_interval(config):
+def find_min_interval():
     intervals = range(1,
-                      config['test_param']['defaultInterval'] + config['test_param']['intervalStep'],
+                      config['test_param']['maxInterval'] + config['test_param']['intervalStep'],
                       config['test_param']['intervalStep'])
     for interval in intervals:
-        print('Benchmarking to find minimum value, current configuration ' + str(interval) + ' seconds and ' +
+        print('Benchmarking to find minimum block interval value, current configuration ' + str(
+            interval) + ' seconds and ' +
               str(config['test_param']['defaultGas']) + ' gas limit.')
         try:
             run_file(
-                ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval),
+                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']), str(interval),
                  str(config['test_param']['defaultGas']), '0'], verbose=verbose_level>=VERBOSE_LEVEL_1)
-            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval), '--gaslimit',
+            run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval), '--gaslimit',
                       str(config['test_param']['defaultGas'])], verbose=verbose_level==VERBOSE_LEVEL_2)
+
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
             #    ['sh', _get_path('test.sh'), str(interval),
             #     str(config['test_param']['defaultGas'])])
-            print('Minimum block interval found! - ' + str(interval) + ' seconds.')
+            print('Minimum block interval found! ' + str(interval) + ' seconds.')
             return interval
         except Exception as e:
             print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
@@ -104,81 +120,217 @@ def find_min_interval(config):
     return -1
 
 
-def find_min_gas_limit(config):
-    gasLimit = range(1, config['test_param']['defaultGas'] + config['test_param']['gasStep'],
-                     config['test_param']['gasStep'])
-    for gas in gasLimit:
-        print('Benchmarking to find minimum value, current configuration ' + str(config['test_param'][
-            'defaultInterval']) + ' seconds and ' +
-              str(gas) + ' gas limit.')
+def find_min_gas_limit(interval):
+    upper_bound = config['test_param']['minGas']
+    lower_bound = upper_bound
+
+    print("Benchmarking to find minimum block gas limit value for block interval dimension of " + str(
+        interval) + " seconds.")
+    # Benchmarking to get initial upper bound
+    while True:
         try:
             run_file(
-                ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
-                 str(config['test_param']['defaultInterval']),
-                 str(gas), '0'], verbose=verbose_level>=VERBOSE_LEVEL_1)
-            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(config['test_param']['defaultInterval']),
+                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+                 str(interval),
+                 str(upper_bound), '0'])
+            run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
                       '--gaslimit',
-                      str(gas)], verbose=verbose_level==VERBOSE_LEVEL_2)
+                      str(upper_bound)])
+            # yes
+            break
+        except Exception as e:
+            print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
+                str(interval), str(upper_bound), e))
+        # no
+        lower_bound = upper_bound
+        upper_bound = int(upper_bound * 2)
+    working_upper_bound = upper_bound
+    upper_bound = int((upper_bound + lower_bound) / 2)
+    print("A working gas limit upper bound has been found: " + str(upper_bound))
+    accuracy = config["test_param"]["gasLimitAccuracy"]
+
+    # Benchmarking upper bound
+    while True:
+        print("Benchmarking with " + str(upper_bound) + " upper bound and " + str(
+            lower_bound) + " lower bound to find the minimum gas limit")
+        try:
+            run_file(
+                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+                 str(interval),
+                 str(upper_bound), '0'])
+            run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
+                      '--gaslimit',
+                      str(upper_bound)], verbose=verbose_level>=VERBOSE_LEVEL_1)
+
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
             #    ['sh', _get_path('test.sh'),
             #     str(config['test_param']['defaultInterval']), str(gas)])
-            print('Minimum block gas limit found! - ' + str(gas))
-            return gas
+
+            # Is inside the accuracy expected?
+            if accuracy >= (abs(upper_bound - lower_bound)):
+                break
+            else:
+                # yes
+                working_upper_bound = upper_bound
+                upper_bound = int((upper_bound + lower_bound) / 2)
         except Exception as e:
             print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
-                str(config['test_param']['defaultInterval']), str(gas), e))
+                str(interval), str(upper_bound), e))
+            # no
+            lower_bound = upper_bound
+            upper_bound = int((lower_bound + working_upper_bound) / 2)
 
-    print(
-        'Minimum block gas limit not found. Check again your setup or '
-        'change the configuration values (default and steps values).')
-    return -1
+    print("Minimum gas limit bound found: " + str(upper_bound))
+    return upper_bound
+
+
+def find_optimal_parameters():
+    results = {}
+    peaks = []
+    interval_queue = queue.Queue()
+    trials = config["test_param"]["numberTrials"]
+    sensitivity = config["test_param"]["sensitivity"]
+    gas_step = config["test_param"]["gasStep"]
+    interval_step = config["test_param"]["intervalStep"]
+    # obtaining minimum block interval
+    interval = find_min_interval()
+    if interval < 0:
+        print("Tool execution failed.")
+        exit(-1)
+
+    optimal = False
+
+    while not optimal:
+        print("Benchmarking with block interval of " + str(interval) + " seconds.")
+        results[interval] = {}
+        stop_reached = False
+        # Finding the minimum block gas limit
+        gas = find_min_gas_limit(interval)
+        if gas < 0:
+            # failed to get minimum block gas limit for x interval. Stopping tool execution
+            stop_reached = True
+        tries = 0
+        gaslimit_queue = queue.Queue()
+        while not stop_reached:
+            print("Benchmarking with block interval of " + str(interval) + " seconds and " + str(gas) + " gas limit.")
+            # benchmarking with block interval x and block gas limit y
+            try:
+                run_file(
+                    ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+                     str(interval),
+                     str(gas), '0'])
+                run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
+                          '--gaslimit',
+                          str(gas)])
+                # UNCOMMENT ONLY FOR TESTING PURPOSES
+                # run_file(
+                #    ['sh', _get_path('test.sh'),
+                #     str(config['test_param']['defaultInterval']), str(gas)])
+                last_tps = get_last_tps(interval, gas)
+                results[interval][gas] = last_tps
+                # Is optimal gas limit for x interval found?
+                if gaslimit_queue.qsize() >= trials:
+                    tmp_queue = queue.Queue()
+                    improvement = False
+                    while not gaslimit_queue.empty():
+                        x = gaslimit_queue.get(False)
+                        tmp_queue.put(x)
+                        tmp = 1 - (x / last_tps)
+                        print("Sensitivity: " + str(tmp))
+                        if tmp > sensitivity:
+                            improvement = True
+                    gaslimit_queue = tmp_queue
+                    gaslimit_queue.get()
+                    gaslimit_queue.put(last_tps)
+                    if not improvement:
+                        # yes
+                        stop_reached = True
+                        print("Improvement less than the sensitivity given, last feasible gas limit found")
+                    else:
+                        # no
+                        gas += gas_step
+                else:
+                    # no, we need more trials
+                    gaslimit_queue.put(last_tps)
+                    gas += gas_step
+            except Exception as e:
+                print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
+                    str(interval), str(gas), e))
+                results[interval][gas] = -1
+                gaslimit_queue.put(-1)
+                # Crash found, yes
+                if tries > trials:
+                    stop_reached = True
+                    print("Crash in benchmarking execution, last feasible gas limit found")
+                else:
+                    gas += gas_step
+
+            tries += 1
+
+        # optimal gas limit for x block interval found, getting the best TPS of this x block interval
+        max_key = 0
+        max_value = 0
+        for key in results[interval]:
+            value = results[interval][key]
+            if value > max_value:
+                max_value = value
+                max_key = key
+        last_peak = max_value
+        print(
+            "Peak in block interval " + str(interval) + " seconds found. Found in "
+            + str(max_key) + " gas limit with " + str(last_peak) + " TPS.")
+        # saving the last peak in the array of peaks
+        peaks.append({str(interval) + ":" + str(max_key): max_value})
+        # can we improve more the tps?
+        if len(peaks) > trials:
+            pos = trials + 1
+            improvement = False
+            while pos > 1:
+                print("Peak calc: " + str(peaks[-pos].values()))
+                tmp = 1 - (next(iter(peaks[-pos].values())) / last_peak)
+                if tmp > sensitivity:
+                    improvement = True
+                pos -= 1
+            if not improvement:
+                # no
+                optimal = True
+                print("Improvement less than the sensitivity given, last feasible combination found")
+            else:
+                # yes
+                interval += interval_step
+        else:
+            # yes
+            interval += interval_step
+
+    # no more improvement expected, getting the maximum tps with its parameters
+    max_result = 0
+    best_parameters = {}
+    for parameters in peaks:
+        curr_value = next(iter(parameters.values()))
+        if curr_value > max_result:
+            max_result = curr_value
+            best_parameters = parameters
+
+    return best_parameters
 
 
 if __name__ == '__main__':
     print('Starting tool execution...')
-    config = load_config(CONFIG_PATH)
-
+    start_time = time.time()
     # Backing up old results
-    run_file(['python', _get_path('analyzer/backup-old-results.py')], verbose=verbose_level==VERBOSE_LEVEL_2)
+    run_file(['python', _get_path(BACKUP_PATH)])
 
     # Building SUT for the first time
     run_file(
-        ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
-         str(config['test_param']['defaultInterval']),
+        ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+         str(config['test_param']['maxInterval']),
          str(config['test_param']['defaultGas']), '1'], verbose=verbose_level>=VERBOSE_LEVEL_1)
 
-    # Finding the minimum block interval
-    min_interval = find_min_interval(config)
-    if min_interval < 0:
-        print("Tool execution failed.")
-        exit(-1)
-
-    # Finding the minimum block gas limit
-    min_gas = find_min_gas_limit(config)
-    if min_gas < 0:
-        print("Tool execution failed.")
-        exit(-1)
-
-    # TODO implement algorithm to find maximum range of gaslimit and interval
-    print("Starting benchmarking plan execution")
-    # Creating new ranges
-    intervals = range(min_interval,
-                      config['test_param']['maxInterval'] + config['test_param']['intervalStep'],
-                      config['test_param']['intervalStep'])
-    gasLimit = range(min_gas, config['test_param']['maxGas'] + config['test_param']['gasStep'],
-                     config['test_param']['gasStep'])
-
-    for interval in intervals:
-        for gas in gasLimit:
-            print('Building SUT with block interval ' + str(interval) + 's and ' + str(gas) + ' block gas limit')
-            run_file(['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval), str(gas),
-                      '0'], verbose=verbose_level>=VERBOSE_LEVEL_1)
-            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval), '--gaslimit', str(gas)], verbose=verbose_level==VERBOSE_LEVEL_2)
-            #if check_execution(interval, gas) is None:
-            break
-
+    result = find_optimal_parameters()
+    print("Best result found: " + str(result))
     print('Aggregating all the workload reports')
-    run_file(['python', _get_path('analyzer/aggregate-html-reports.py')], verbose=verbose_level==VERBOSE_LEVEL_0)
-    # run_file(['python', _get_path('calculate-optimal-values.py')])
+    run_file(['python', _get_path(AGGREGATE_RESULTS_PATH)], verbose=verbose_level==VERBOSE_LEVEL_0)
+    exec_time = (time.time() - start_time)
+    print("Execution time: " + str(exec_time))
     exit(0)

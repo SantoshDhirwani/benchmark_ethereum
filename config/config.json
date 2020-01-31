@@ -5,11 +5,15 @@
   },
   "test_param": {
     "maxGas": 15000000,
+    "minGas": 2000000,
     "defaultGas": 10000000,
     "gasStep": 5000000,
+    "gasLimitAccuracy": 500000,
     "maxInterval": 15,
-    "defaultInterval": 5,
-    "intervalStep": 2
+    "minInterval": 1,
+    "intervalStep": 1,
+    "numberTrials": 2,
+    "sensitivity": 0.05
   },
   "run_caliper": {
     "attempt": 3

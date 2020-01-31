@@ -29,7 +29,7 @@ for j in range(1,len(my_tables)):
     temp['blockInterval'] = temp['blockInterval'].astype(float)
     final = pd.concat([final,temp], ignore_index=False, sort=False)
 
-tempcheck=(final.groupby(final['Name']))		
+tempcheck=(final.groupby(final['Throughput (TPS)']))
 
 dat = pd.DataFrame()
 for key, item in tempcheck:

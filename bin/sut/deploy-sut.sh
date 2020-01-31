@@ -10,7 +10,7 @@ BLOCK_SIZE=${3}
 NEW_SETUP=${4}
 INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
-INSTANCE_TEMPLATE=ethtemplate
+INSTANCE_TEMPLATE=$(jq -r '.eth_param.templateName'  ../config/config.json)
 
 #receiving the values of Username, Password and NetworkID from config.json
 USERNAME=$(jq -r '.USERNAME'  ../config/config.json)
@@ -93,7 +93,7 @@ for index in ${!ACCOUNT_LIST[@]}; do
     INSTANCES_STRING+="${INSTANCE_IP_LIST[index]}:8501:${ACCOUNT_LIST[index]}:${PASSWORD}\\n"
     ACCOUNT_STRING+="${ACCOUNT_LIST[index]}\\n"
 done
-echo ${INSTANCES_STRING} > run_caliper.conf
+printf ${INSTANCES_STRING} > run_caliper.conf
 ACCOUNT_STRING+="\\n"
 
 echo ---- ACCOUNTS CREATED ----

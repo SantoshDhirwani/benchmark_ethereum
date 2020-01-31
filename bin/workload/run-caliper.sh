@@ -23,8 +23,10 @@ wait
 if grep -Fxq "Benchmark run successful" caliper-status.txt
 then
     echo "Benchmark run successful"
+    rm caliper-status.txt
 else
     #delete report and return exit code
     rm -r workload/caliper-reports/${REPORTNAME}
+    rm caliper-status.txt
     exit -1
 fi 
