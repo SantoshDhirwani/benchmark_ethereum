@@ -6,6 +6,14 @@ import subprocess
 
 CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
+# 0: Print only the final step of aggregating results
+# 1: Print content related to SUT and benchmarking
+# 2: Print everything
+
+verbose_level = int(sys.argv[1])
+VERBOSE_LEVEL_0 = 0
+VERBOSE_LEVEL_1 = 1
+VERBOSE_LEVEL_2 = 2
 
 def _get_path(filename):
     return os.path.join(CURRENT_FOLDER, filename)
@@ -13,13 +21,6 @@ def _get_path(filename):
 
 CONFIG_PATH = os.path.join(_get_path('../config'), 'config.json')
 
-# level 0 don't print at all, just the final result
-# level 1 print block interval and gas limit benchmarked with their corresponding transaction
-# level 2 print debug statements like accounts created, vms created and so on
-verbose_level = int(sys.argv[1])
-VERBOSE_LEVEL_0 = 0
-VERBOSE_LEVEL_1 = 1
-VERBOSE_LEVEL_2 = 2
 
 def load_config(path):
     print('Reading user configuration...')
@@ -43,7 +44,6 @@ def run_file(file_path, verbose=True):
 
     while True:
         output = process.stdout.readline()
-
         if verbose:
             print(output.strip())
 
@@ -65,7 +65,7 @@ def run_file(file_path, verbose=True):
 
 
 def check_execution(interval, gaslimit):
-    run_file(['python', _get_path('get-last-throughput.py'), '--interval', str(interval), '--gaslimit',
+    run_file(['python', _get_path('analyzer/get-last-throughput.py'), '--interval', str(interval), '--gaslimit',
                    str(gaslimit)], verbose=verbose_level==VERBOSE_LEVEL_2)
     tps = 0
     with open('last-tps', "r") as file:
@@ -73,7 +73,7 @@ def check_execution(interval, gaslimit):
     print(tps)
     #TODO check if last value improved enough to continue benchmarking
     return 0
-  
+
 
 def find_min_interval(config):
     intervals = range(1,
@@ -84,11 +84,10 @@ def find_min_interval(config):
               str(config['test_param']['defaultGas']) + ' gas limit.')
         try:
             run_file(
-                ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval),
+                ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval),
                  str(config['test_param']['defaultGas']), '0'], verbose=verbose_level>=VERBOSE_LEVEL_1)
-            run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit',
+            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval), '--gaslimit',
                       str(config['test_param']['defaultGas'])], verbose=verbose_level==VERBOSE_LEVEL_2)
-
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
             #    ['sh', _get_path('test.sh'), str(interval),
@@ -116,11 +115,10 @@ def find_min_gas_limit(config):
             run_file(
                 ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
                  str(config['test_param']['defaultInterval']),
-                 str(gas), '0'],
-                 verbose=verbose_level>=VERBOSE_LEVEL_1)
-            run_file(['python', _get_path('run-caliper.py'), '--interval', str(config['test_param']['defaultInterval']),
+                 str(gas), '0'], verbose=verbose_level>=VERBOSE_LEVEL_1)
+            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(config['test_param']['defaultInterval']),
                       '--gaslimit',
-                      str(gas)], verbose=verbose_level>=VERBOSE_LEVEL_1)
+                      str(gas)], verbose=verbose_level==VERBOSE_LEVEL_2)
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
             #    ['sh', _get_path('test.sh'),
@@ -142,15 +140,13 @@ if __name__ == '__main__':
     config = load_config(CONFIG_PATH)
 
     # Backing up old results
-    run_file(['python', _get_path('backup-old-results.py')], verbose=verbose_level==VERBOSE_LEVEL_2)
-
+    run_file(['python', _get_path('analyzer/backup-old-results.py')], verbose=verbose_level==VERBOSE_LEVEL_2)
 
     # Building SUT for the first time
     run_file(
         ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
          str(config['test_param']['defaultInterval']),
-         str(config['test_param']['defaultGas']), '1'],
-         verbose=verbose_level>=VERBOSE_LEVEL_1)
+         str(config['test_param']['defaultGas']), '1'], verbose=verbose_level>=VERBOSE_LEVEL_1)
 
     # Finding the minimum block interval
     min_interval = find_min_interval(config)
@@ -176,15 +172,13 @@ if __name__ == '__main__':
     for interval in intervals:
         for gas in gasLimit:
             print('Building SUT with block interval ' + str(interval) + 's and ' + str(gas) + ' block gas limit')
-            run_file(['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval), str(gas),
+            run_file(['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval), str(gas),
                       '0'], verbose=verbose_level>=VERBOSE_LEVEL_1)
-            run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit', str(gas)], verbose=verbose_level==VERBOSE_LEVEL_2)
-
+            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval), '--gaslimit', str(gas)], verbose=verbose_level==VERBOSE_LEVEL_2)
             #if check_execution(interval, gas) is None:
             break
 
     print('Aggregating all the workload reports')
-    run_file(['python', _get_path('aggregate-html-reports.py')], verbose=verbose_level==VERBOSE_LEVEL_0)
-    # run_file(['python', _get_path('calculate-optimal-values.py')], verbose=verbose_level==VERBOSE_LEVEL_0)
+    run_file(['python', _get_path('analyzer/aggregate-html-reports.py')], verbose=verbose_level==VERBOSE_LEVEL_0)
+    # run_file(['python', _get_path('calculate-optimal-values.py')])
     exit(0)
-
