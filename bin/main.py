@@ -85,7 +85,7 @@ def find_min_interval():
               str(config['test_param']['defaultGas']) + ' gas limit.')
         try:
             run_file(
-                ['sh', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']), str(interval),
+                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']), str(interval),
                  str(config['test_param']['defaultGas']), '0'])
             run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval), '--gaslimit',
                       str(config['test_param']['defaultGas'])])
@@ -115,7 +115,7 @@ def find_min_gas_limit(interval):
     while True:
         try:
             run_file(
-                ['sh', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                  str(interval),
                  str(upper_bound), '0'])
             run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
@@ -140,7 +140,7 @@ def find_min_gas_limit(interval):
             lower_bound) + " lower bound to find the minimum gas limit")
         try:
             run_file(
-                ['sh', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                  str(interval),
                  str(upper_bound), '0'])
             run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
@@ -201,7 +201,7 @@ def find_optimal_parameters():
             # benchmarking with block interval x and block gas limit y
             try:
                 run_file(
-                    ['sh', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+                    ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                      str(interval),
                      str(gas), '0'])
                 run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
@@ -307,7 +307,7 @@ if __name__ == '__main__':
 
     # Building SUT for the first time
     run_file(
-        ['sh', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+        ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
          str(config['test_param']['maxInterval']),
          str(config['test_param']['defaultGas']), '1'])
 

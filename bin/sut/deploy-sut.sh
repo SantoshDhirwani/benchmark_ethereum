@@ -93,7 +93,7 @@ for index in ${!ACCOUNT_LIST[@]}; do
     INSTANCES_STRING+="${INSTANCE_IP_LIST[index]}:8501:${ACCOUNT_LIST[index]}:${PASSWORD}\\n"
     ACCOUNT_STRING+="${ACCOUNT_LIST[index]}\\n"
 done
-echo ${INSTANCES_STRING} > run_caliper.conf
+printf ${INSTANCES_STRING} > run_caliper.conf
 ACCOUNT_STRING+="\\n"
 
 echo ---- ACCOUNTS CREATED ----
