@@ -85,7 +85,7 @@ def find_min_interval(config):
         try:
             run_file(
                 ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval),
-                 str(config['test_param']['defaultGas']), '0'], verbose=verbose_level==VERBOSE_LEVEL_1)
+                 str(config['test_param']['defaultGas']), '0'], verbose=verbose_level>=VERBOSE_LEVEL_1)
             run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit',
                       str(config['test_param']['defaultGas'])], verbose=verbose_level==VERBOSE_LEVEL_2)
 
@@ -117,11 +117,10 @@ def find_min_gas_limit(config):
                 ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
                  str(config['test_param']['defaultInterval']),
                  str(gas), '0'],
-                 verbose=verbose_level==VERBOSE_LEVEL_1)
+                 verbose=verbose_level>=VERBOSE_LEVEL_1)
             run_file(['python', _get_path('run-caliper.py'), '--interval', str(config['test_param']['defaultInterval']),
-
                       '--gaslimit',
-                      str(gas)], verbose=verbose_level=VERBOSE_LEVEL_1)
+                      str(gas)], verbose=verbose_level>=VERBOSE_LEVEL_1)
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
             #    ['sh', _get_path('test.sh'),
@@ -151,7 +150,7 @@ if __name__ == '__main__':
         ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
          str(config['test_param']['defaultInterval']),
          str(config['test_param']['defaultGas']), '1'],
-         verbose=verbose_level==VERBOSE_LEVEL_1)
+         verbose=verbose_level>=VERBOSE_LEVEL_1)
 
     # Finding the minimum block interval
     min_interval = find_min_interval(config)
@@ -178,7 +177,7 @@ if __name__ == '__main__':
         for gas in gasLimit:
             print('Building SUT with block interval ' + str(interval) + 's and ' + str(gas) + ' block gas limit')
             run_file(['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval), str(gas),
-                      '0'], verbose=verbose_level==VERBOSE_LEVEL_1)
+                      '0'], verbose=verbose_level>=VERBOSE_LEVEL_1)
             run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit', str(gas)], verbose=verbose_level==VERBOSE_LEVEL_2)
 
             #if check_execution(interval, gas) is None:
