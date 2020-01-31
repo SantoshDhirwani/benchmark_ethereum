@@ -65,8 +65,13 @@ def run_file(file_path, verbose=True):
 
 
 def check_execution(interval, gaslimit):
+<<<<<<< HEAD
     run_file(['python', _get_path('get-last-throughput.py'), '--interval', str(interval), '--gaslimit',
                    str(gaslimit)], verbose=verbose_level==VERBOSE_LEVEL_2)
+=======
+    run_file(['python', _get_path('analyzer/get-last-throughput.py'), '--interval', str(interval), '--gaslimit',
+                   str(gaslimit)])
+>>>>>>> master
     tps = 0
     with open('last-tps', "r") as file:
         tps = float(file.read())
@@ -84,10 +89,17 @@ def find_min_interval(config):
               str(config['test_param']['defaultGas']) + ' gas limit.')
         try:
             run_file(
+<<<<<<< HEAD
                 ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval),
                  str(config['test_param']['defaultGas']), '0'], verbose=verbose_level==VERBOSE_LEVEL_1)
             run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit',
                       str(config['test_param']['defaultGas'])], verbose=verbose_level==VERBOSE_LEVEL_2)
+=======
+                ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval),
+                 str(config['test_param']['defaultGas']), '0'])
+            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval), '--gaslimit',
+                      str(config['test_param']['defaultGas'])])
+>>>>>>> master
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
             #    ['sh', _get_path('test.sh'), str(interval),
@@ -113,11 +125,16 @@ def find_min_gas_limit(config):
               str(gas) + ' gas limit.')
         try:
             run_file(
-                ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
+                ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
                  str(config['test_param']['defaultInterval']),
+<<<<<<< HEAD
                  str(gas), '0'],
                  verbose=verbose_level==VERBOSE_LEVEL_1)
             run_file(['python', _get_path('run-caliper.py'), '--interval', str(config['test_param']['defaultInterval']),
+=======
+                 str(gas), '0'])
+            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(config['test_param']['defaultInterval']),
+>>>>>>> master
                       '--gaslimit',
                       str(gas)], verbose=verbose_level==VERBOSE_LEVEL_1)
             # UNCOMMENT ONLY FOR TESTING PURPOSES
@@ -141,11 +158,15 @@ if __name__ == '__main__':
     config = load_config(CONFIG_PATH)
 
     # Backing up old results
+<<<<<<< HEAD
     run_file(['python', _get_path('backup-old-results.py')], verbose=verbose_level==VERBOSE_LEVEL_2)
+=======
+    run_file(['python', _get_path('analyzer/backup-old-results.py')])
+>>>>>>> master
 
     # Building SUT for the first time
     run_file(
-        ['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
+        ['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']),
          str(config['test_param']['defaultInterval']),
          str(config['test_param']['defaultGas']), '1'],
          verbose=verbose_level==VERBOSE_LEVEL_1)
@@ -174,13 +195,25 @@ if __name__ == '__main__':
     for interval in intervals:
         for gas in gasLimit:
             print('Building SUT with block interval ' + str(interval) + 's and ' + str(gas) + ' block gas limit')
+<<<<<<< HEAD
             run_file(['sh', _get_path('deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval), str(gas),
                       '0'], verbose=verbose_level==VERBOSE_LEVEL_1)
             run_file(['python', _get_path('run-caliper.py'), '--interval', str(interval), '--gaslimit', str(gas)], verbose=verbose_level==VERBOSE_LEVEL_2)
+=======
+            run_file(['sh', _get_path('sut/deploy-sut.sh'), str(config['eth_param']['nodeNumber']), str(interval), str(gas),
+                      '0'])
+            run_file(['python', _get_path('workload/run-caliper.py'), '--interval', str(interval), '--gaslimit', str(gas)])
+>>>>>>> master
             #if check_execution(interval, gas) is None:
             break
 
     print('Aggregating all the workload reports')
+<<<<<<< HEAD
     run_file(['python', _get_path('aggregate-html-reports.py')], verbose=verbose_level==VERBOSE_LEVEL_0)
     # run_file(['python', _get_path('calculate-optimal-values.py')], verbose=verbose_level==VERBOSE_LEVEL_0)
     exit(0)
+=======
+    run_file(['python', _get_path('analyzer/aggregate-html-reports.py')])
+    # run_file(['python', _get_path('calculate-optimal-values.py')])
+    exit(0)
+>>>>>>> master

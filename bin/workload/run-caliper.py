@@ -44,23 +44,23 @@ def update_json(filename, args):
     data["ethereum"]["fromAddress"]= "0x" + instance_data[2]
     data["ethereum"]["fromAddressPassword"]= instance_data[3].split('\n')[0]
 
-    with open('caliper-config/networks/ethereum/1node-clique/ethereum.json', "w") as jsonFile:
+    with open('workload/caliper-config/networks/ethereum/1node-clique/ethereum.json', "w") as jsonFile:
         json.dump(data, jsonFile, indent=4)
 
 #get config for attempt
-CONFIG_PATH = os.path.join(_get_path('../config'), 'config.json')
+CONFIG_PATH = os.path.join(_get_path('../../config'), 'config.json')
 
 def main():
     #load args
     config = load_args()
     #updpate details for network file
-    networkfile = "caliper-config/sample-network.json"
+    networkfile = "workload/caliper-config/sample-network.json"
     update_json(networkfile, config)
 
     #run the caliper
     config_general = load_config(CONFIG_PATH)
     attempt = config_general['run_caliper']['attempt']
-    bashfile = "run-caliper.sh"
+    bashfile = "workload/run-caliper.sh"
     reportname = config.interval + "seconds-" + config.gaslimit + ".html"
     #running in number of attempts if it's failing (attempts variable getting from config)
     for i in range(attempt):
