@@ -80,7 +80,7 @@ def run_file(file_path, verbose=True):
 
 def get_last_tps(interval, gaslimit):
     run_file(['python', _get_path(GET_LAST_RESULT_PATH), '--interval', str(interval), '--gaslimit',
-              str(gaslimit)], verbose=verbose_level==VERBOSE_LEVEL_2)
+              str(gaslimit), '--no-user-output-enabled' if verbose_level==VERBOSE_LEVEL_0 else ''], verbose=verbose_level>=VERBOSE_LEVEL_1)
     tps = 0
     with open('last-tps', "r") as file:
         tps = float(file.read())
@@ -100,9 +100,9 @@ def find_min_interval():
         try:
             run_file(
                 ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']), str(interval),
-                 str(config['test_param']['defaultGas']), '0'], verbose=verbose_level>=VERBOSE_LEVEL_1)
+                 str(config['test_param']['defaultGas']), '0', '--no-user-output-enabled' if verbose_level==VERBOSE_LEVEL_0 else ''], verbose=verbose_level>=VERBOSE_LEVEL_1)
             run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval), '--gaslimit',
-                      str(config['test_param']['defaultGas'])], verbose=verbose_level==VERBOSE_LEVEL_2)
+                      str(config['test_param']['defaultGas']), '--no-user-output-enabled' if verbose_level==VERBOSE_LEVEL_0 else ''], verbose=verbose_level==VERBOSE_LEVEL_2)
 
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
@@ -132,10 +132,10 @@ def find_min_gas_limit(interval):
             run_file(
                 ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                  str(interval),
-                 str(upper_bound), '0'])
+                 str(upper_bound), '0', '--no-user-output-enabled' if verbose_level==VERBOSE_LEVEL_0 else ''])
             run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
                       '--gaslimit',
-                      str(upper_bound)])
+                      str(upper_bound)], verbose=verbose_level==VERBOSE_LEVEL_2)
             # yes
             break
         except Exception as e:
@@ -157,10 +157,10 @@ def find_min_gas_limit(interval):
             run_file(
                 ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                  str(interval),
-                 str(upper_bound), '0'])
+                 str(upper_bound), '0', '--no-user-output-enabled' if verbose_level==VERBOSE_LEVEL_0 else ''], verbose=verbose_level>=VERBOSE_LEVEL_1)
             run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
                       '--gaslimit',
-                      str(upper_bound)], verbose=verbose_level>=VERBOSE_LEVEL_1)
+                      str(upper_bound), '--no-user-output-enabled' if verbose_level==VERBOSE_LEVEL_0 else ''], verbose=verbose_level>=VERBOSE_LEVEL_1)
 
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
@@ -219,10 +219,10 @@ def find_optimal_parameters():
                 run_file(
                     ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                      str(interval),
-                     str(gas), '0'])
+                     str(gas), '0', '--no-user-output-enabled' if verbose_level==VERBOSE_LEVEL_0 else ''], verbose=verbose_level>=VERBOSE_LEVEL_1)
                 run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
                           '--gaslimit',
-                          str(gas)])
+                          str(gas), '--no-user-output-enabled' if verbose_level==VERBOSE_LEVEL_0 else ''], verbose=verbose_level>=VERBOSE_LEVEL_1))
                 # UNCOMMENT ONLY FOR TESTING PURPOSES
                 # run_file(
                 #    ['sh', _get_path('test.sh'),
@@ -319,7 +319,7 @@ if __name__ == '__main__':
     print('Starting tool execution...')
     start_time = time.time()
     # Backing up old results
-    run_file(['python', _get_path(BACKUP_PATH)])
+    run_file(['python', _get_path(BACKUP_PATH)], verbose=verbose_level==VERBOSE_LEVEL_2)
 
     # Building SUT for the first time
     run_file(
