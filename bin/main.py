@@ -222,7 +222,7 @@ def find_optimal_parameters():
                      str(gas), '0', '--no-user-output-enabled' if verbose_level==VERBOSE_LEVEL_0 else ''], verbose=verbose_level>=VERBOSE_LEVEL_1)
                 run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
                           '--gaslimit',
-                          str(gas), '--no-user-output-enabled' if verbose_level==VERBOSE_LEVEL_0 else ''], verbose=verbose_level>=VERBOSE_LEVEL_1))
+                          str(gas), '--no-user-output-enabled' if verbose_level==VERBOSE_LEVEL_0 else ''], verbose=verbose_level>=VERBOSE_LEVEL_1)
                 # UNCOMMENT ONLY FOR TESTING PURPOSES
                 # run_file(
                 #    ['sh', _get_path('test.sh'),
