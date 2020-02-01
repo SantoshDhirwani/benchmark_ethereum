@@ -183,17 +183,20 @@ def find_optimal_parameters():
         print("Tool execution failed.")
         exit(-1)
 
+    # Finding the minimum block gas limit
+    minimum_gas_limit = find_min_gas_limit(interval)
+    if minimum_gas_limit < 0:
+        # failed to get minimum block gas limit for x interval. Stopping tool execution
+        print("Failed get minimum gas limit.")
+        exit(-1)
+    print("This is minimum gas limit: " + str(minimum_gas_limit))
     optimal = False
 
     while not optimal:
         print("Benchmarking with block interval of " + str(interval) + " seconds.")
         results[interval] = {}
         stop_reached = False
-        # Finding the minimum block gas limit
-        gas = find_min_gas_limit(interval)
-        if gas < 0:
-            # failed to get minimum block gas limit for x interval. Stopping tool execution
-            stop_reached = True
+        gas = minimum_gas_limit
         tries = 0
         gaslimit_queue = queue.Queue()
         while not stop_reached:
