@@ -3,7 +3,7 @@
 set -e
 
 export WS_SECRET=mysecret
-sudo killall pm2 || true
+sudo pm2 kill || true
 sudo killall node || true
 
 if [ ! -d "eth-netstats" ] ; then
