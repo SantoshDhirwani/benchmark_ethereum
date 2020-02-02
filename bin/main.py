@@ -54,13 +54,16 @@ def run_file(file_path, verbose=True):
     process = subprocess.Popen(
         file_path,
         stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         universal_newlines=True
     )
 
     while True:
         output = process.stdout.readline()
+        err_output = process.stderr.readline()
         if verbose:
             print(output.strip())
+            print(err_output.strip())
 
         return_code = process.poll()
         if return_code is not None:
@@ -72,6 +75,9 @@ def run_file(file_path, verbose=True):
                 )
 
             for output in process.stdout.readlines():
+                if verbose:
+                    print(output.strip())
+            for output in process.stderr.readlines():
                 if verbose:
                     print(output.strip())
 
@@ -325,7 +331,7 @@ if __name__ == '__main__':
     run_file(
         ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
          str(config['test_param']['maxInterval']),
-         str(config['test_param']['defaultGas']), '1', '--no-user-output-enabled' if verbose_level==VERBOSE_LEVEL_0 else ''], verbose=verbose_level>=VERBOSE_LEVEL_1)
+         str(config['test_param']['defaultGas']), '1'], verbose=verbose_level>=VERBOSE_LEVEL_1)
 
     result = find_optimal_parameters()
     print("Best result found: " + str(result))
