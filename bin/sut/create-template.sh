@@ -3,7 +3,7 @@
 set -e
 
 ###########ENVIRONMENT_VARIBALES############################
-VM_TEMPLATE_NAME=$(cat ../config/config.json | awk  '/templateName/{print $2}' | sed 's/\"//g' )
+VM_TEMPLATE_NAME=$(cat ../../config/config.json | awk  '/templateName/{print $2}' | sed 's/\"//g' )
 RANDOM_ID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
 INSTANCE_NAME=${VM_TEMPLATE_NAME}
 ZONE=europe-west1-b
