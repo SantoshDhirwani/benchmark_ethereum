@@ -2,6 +2,10 @@
 
 set -e
 
+export WS_SECRET=mysecret
+sudo killall pm2 || true
+sudo killall node || true
+
 if [ ! -d "eth-netstats" ] ; then
     git clone https://github.com/cubedro/eth-netstats
     cd eth-netstats
@@ -10,29 +14,44 @@ if [ ! -d "eth-netstats" ] ; then
     grunt
     cd ..
 fi
-nohup npm start eth-netstats/app.js &
-
+cd eth-netstats
+nohup npm start &
+cd ..
 
 if [ ! -d "eth-net-intelligence-api" ] ; then
     git clone https://github.com/cubedro/eth-net-intelligence-api
     cd eth-net-intelligence-api
     sudo npm install
-    sudo npm install -g pm2
     cd ..
 fi
 
-jsonStr=$(cat eth-net-intelligence-api/app.json)
-IP_NODE=$(head -1 run_caliper.conf | cut -d ":" -f1)
-echo ${IP_NODE}
+cd eth-net-intelligence-api
+jsonStr=$(cat app.json)
 
-jsonStr=$(echo ${jsonStr} | jq '.[0].env.RPC_PORT = "123"')
-jsonStr=$(echo ${jsonStr} | jq '.[0].env.RPC_HOST = "'${IP_NODE}'"')
-jsonStr=$(echo ${jsonStr} | jq '.[0].env.LISTENING_PORT = "30311"')
-jsonStr=$(echo ${jsonStr} | jq '.[0].env.INSTANCE_NAME = "Geth/v1.9.8-stable-d62e9b28/linux-amd64/go1.13.4"')
-jsonStr=$(echo ${jsonStr} | jq '.[0].env.WS_SERVER = "locaholst:3000"')
-jsonStr=$(echo ${jsonStr} | jq '.[0].env.WS_SECRET = "mysecret"')
+COUNTER=0
+for NODE in $(cat ../../run_caliper.conf)
+do
+    NODE_IP=$(echo ${NODE} | cut -d ":" -f1)
+    echo ${NODE_IP}
+    jsonStr=$(echo ${jsonStr} | jq '.['${COUNTER}'].name = "node-app"')
+    jsonStr=$(echo ${jsonStr} | jq '.['${COUNTER}'].script = "app.js"')
+    jsonStr=$(echo ${jsonStr} | jq '.['${COUNTER}'].log_date_format = "YYYY-MM-DD HH:mm Z"')
+    jsonStr=$(echo ${jsonStr} | jq '.['${COUNTER}'].merge_logs = false')
+    jsonStr=$(echo ${jsonStr} | jq '.['${COUNTER}'].watch = "false"')
+    jsonStr=$(echo ${jsonStr} | jq '.['${COUNTER}'].max_restarts = "10"')
+    jsonStr=$(echo ${jsonStr} | jq '.['${COUNTER}'].exec_interpreter = "node"')
+    jsonStr=$(echo ${jsonStr} | jq '.['${COUNTER}'].exec_mode = "fork_mode"')
 
-rm -f eth-net-intelligence-api/app.json
-echo ${jsonStr} > eth-net-intelligence-api/app1.json
+    jsonStr=$(echo ${jsonStr} | jq '.['${COUNTER}'].env.RPC_PORT = "8501"')
+    jsonStr=$(echo ${jsonStr} | jq '.['${COUNTER}'].env.RPC_HOST = "'${NODE_IP}'"')
+    jsonStr=$(echo ${jsonStr} | jq '.['${COUNTER}'].env.LISTENING_PORT = "30311"')
+    jsonStr=$(echo ${jsonStr} | jq '.['${COUNTER}'].env.INSTANCE_NAME = "'${NODE_IP}'"')
+    jsonStr=$(echo ${jsonStr} | jq '.['${COUNTER}'].env.WS_SERVER = "localhost:3000"')
+    jsonStr=$(echo ${jsonStr} | jq '.['${COUNTER}'].env.WS_SECRET = "'${WS_SECRET}'"')
+    ((COUNTER+=1))
+done
+pwd
+rm -f app1.json
+echo ${jsonStr} > app1.json
 
-nohup pm2 start eth-net-intelligence-api/app.json &
+nohup pm2 start app1.json &
