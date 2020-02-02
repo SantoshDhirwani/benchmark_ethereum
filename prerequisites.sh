@@ -41,6 +41,13 @@ echo ""
   fi
 
 
+    if hash "web3" 2>/dev/null; then
+    echo 'web3 is installed'
+  else
+   CHECK=false;
+    echo 'web3 is missing Please wait, we will install it for you'
+  npm i web3
+  fi
 
     if hash "geth" 2>/dev/null; then
     echo 'geth is installed'
@@ -57,16 +64,16 @@ echo ""
   fi
 
   echo ""
-   cd bin
+   cd bin/workload
 
 if hash "caliper" 2>/dev/null; then
     echo 'Caliper is already installed'
   else
     echo 'Caliper is not installed in /bin'
     echo 'We will process with installation'
-    npm install -g --only=prod @hyperledger/caliper-cli
-    echo 'We will run caliper bind to configure ethereum'
-   npx caliper bind --caliper-bind-sut ethereum --caliper-bind-sdk 1.2.1 --caliper-cwd ./ --caliper-bind-args="-g"
+        npm install --only=prod @hyperledger/caliper-cli
+        echo 'We will run caliper bind to configure ethereum'
+   npx caliper bind --caliper-bind-sut fabric --caliper-bind-sdk 1.4.0 
   fi
 cd -
 echo ""
