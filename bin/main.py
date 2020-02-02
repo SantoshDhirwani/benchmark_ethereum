@@ -7,6 +7,7 @@ import time
 
 CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 ANALYZER_PATH ="analyzer/"
+MONITOR_PATH= ANALYZER_PATH + "monitor.sh"
 SUT_PATH = "sut/"
 WORKLOAD_PATH = "workload/"
 DEPLOY_SUT_PATH = SUT_PATH + "deploy-sut.sh"
@@ -311,6 +312,9 @@ if __name__ == '__main__':
          str(config['test_param']['maxInterval']),
          str(config['test_param']['defaultGas']), '1'])
 
+    run_file(
+        ['bash', _get_path(MONITOR_PATH)])
+
     result = find_optimal_parameters()
     print("Best result found: " + str(result))
     print('Aggregating all the workload reports')
@@ -318,3 +322,14 @@ if __name__ == '__main__':
     exec_time = (time.time() - start_time)
     print("Execution time: " + str(exec_time))
     exit(0)
+
+
+
+def load_args():
+    parser = argparse.ArgumentParser(description="This script is for running caliper benchmark")
+    # parser.add_argument("--ipaddress", help="IP Address of the node SUT", required=True)
+    # parser.add_argument("--port", help="Used port", required=True)
+    # parser.add_argument("--account", help="The account of the node", required=True)
+    # parser.add_argument("--password", help="Password for the account", required=True)
+    parser.add_argument("--interval", help="Block interval", required=True)
+    parser.add_argument("--gaslimit", help="Block gas limit", required=True)
