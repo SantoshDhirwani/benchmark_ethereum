@@ -29,7 +29,7 @@ cd eth-net-intelligence-api
 jsonStr=$(cat app.json)
 
 COUNTER=0
-for NODE in $(cat ../../run_caliper.conf)
+for NODE in $(cat ../run_caliper.conf)
 do
     NODE_IP=$(echo ${NODE} | cut -d ":" -f1)
     echo ${NODE_IP}
