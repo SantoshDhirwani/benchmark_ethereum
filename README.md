@@ -91,13 +91,15 @@ Caliper
 Note: If you have jq,npm, geth, puppeth and gcloud not installed, you will be provided with the links to follow the easy steps of installing them. This script does not provide their installation, because each user have different OS, and you need to download and install the packages depending on the enviroment you are working from.
 
 
-## Starting the tool
+## Executing the tool
 
 cd cp_ws_1920/bin
 
-python main.py
+´python main.py´
 
-
+### Optional flags
+´--monitor´ to enable ethstats monitoring over the SUT
+´--verbose´ expects 0,1 or 2. 0 is the default value, 1 prints every step the tool is executing and 2 prints every output retrieved form execution
 ## Config (TO-Be-Discussed)
 
 config.json has its objects read by the scripts main.py , deploy-sut.sh , create-template.sh and run-caliper.py .
