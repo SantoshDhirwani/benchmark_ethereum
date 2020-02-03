@@ -4,10 +4,11 @@ import json
 import subprocess
 import queue
 import time
+import argparse
+
 
 CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 ANALYZER_PATH ="analyzer/"
-MONITOR_PATH= ANALYZER_PATH + "monitor.sh"
 SUT_PATH = "sut/"
 WORKLOAD_PATH = "workload/"
 DEPLOY_SUT_PATH = SUT_PATH + "deploy-sut.sh"
@@ -15,12 +16,22 @@ RUN_WORKLOAD_PATH = WORKLOAD_PATH + "run-caliper.py"
 AGGREGATE_RESULTS_PATH = ANALYZER_PATH + "aggregate-html-reports.py"
 GET_LAST_RESULT_PATH = ANALYZER_PATH + "get-last-throughput.py"
 BACKUP_PATH = ANALYZER_PATH + "backup-old-results.py"
+MONITOR_PATH= ANALYZER_PATH + "monitor.sh"
+
 
 def _get_path(filename):
     return os.path.join(CURRENT_FOLDER, filename)
 
 
 CONFIG_PATH = os.path.join(_get_path('../config'), 'config.json')
+
+
+def load_args():
+    parser = argparse.ArgumentParser(description="This script executes Optibench tool")
+    parser.add_argument("--debugLevel", help="The debug level can be 0, 1 or 2", required=False, default=0)
+    parser.add_argument("--monitor", help="Enables Ethstats monitoring over the SUT")
+
+    return parser.parse_args()
 
 
 def load_config(path):
