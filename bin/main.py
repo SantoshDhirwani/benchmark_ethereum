@@ -105,7 +105,7 @@ def find_min_interval():
             if verbose_level >= VERBOSE_LEVEL_1:
                 print('Benchmarking to find minimum block interval value, current configuration ' + str(
                     interval) + ' seconds and ' +
-                    str(config['test_param']['defaultGas']) + ' gas limit.')
+                      str(config['test_param']['defaultGas']) + ' gas limit.')
                 print('Building SUT')
             run_file(
                 ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']), str(interval),
@@ -306,7 +306,7 @@ def find_optimal_parameters():
                     else:
                         # no
                         if verbose_level >= VERBOSE_LEVEL_1:
-                            print("No improvement found, continue with interval " + str(interval) + " seconds")
+                            print("Improvement found, continue with interval " + str(interval) + " seconds")
                         gas += gas_step
                 else:
                     # no, we need more trials
@@ -368,7 +368,7 @@ def find_optimal_parameters():
             else:
                 # no
                 if verbose_level >= VERBOSE_LEVEL_1:
-                    print("No improvement found, continue execution")
+                    print("Improvement found, continue execution")
                 interval += interval_step
         else:
             # no
@@ -408,7 +408,12 @@ if __name__ == '__main__':
     print("Best result found: " + str(result))
     if verbose_level >= VERBOSE_LEVEL_1:
         print('Aggregating all the workload reports')
-    run_file(['python', _get_path(AGGREGATE_RESULTS_PATH)], verbose=verbose_level == VERBOSE_LEVEL_2)
+    key = list(result.keys())[0]
+    throughput = result[key]
+    interval = key.split(":")[0]
+    gaslimit = key.split(":")[1]
+    run_file(['python', _get_path(AGGREGATE_RESULTS_PATH), "--interval", interval,
+              "--gaslimit", gaslimit, "--throughput", str(throughput)], verbose=verbose_level == VERBOSE_LEVEL_2)
     exec_time = (time.time() - start_time)
     print("Execution time: " + str(exec_time))
     exit(0)
