@@ -52,9 +52,19 @@ else
   CHECK=false
   echo 'puppeth is missing. Please follow this link https://www.sitepoint.com/puppeth-introduction/ to install puppeth'
 fi
+echo ""
+
+cd bin/workload
+
+if hash "web3" 2>/dev/null; then
+  echo 'web3 is installed'
+else
+  CHECK=false
+  echo 'web3 is missing. We will process with installation'
+fi
 
 echo ""
-cd bin/workload
+
 
 if hash "caliper" 2>/dev/null; then
   echo 'Caliper is already installed'
