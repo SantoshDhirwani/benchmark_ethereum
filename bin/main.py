@@ -322,14 +322,3 @@ if __name__ == '__main__':
     exec_time = (time.time() - start_time)
     print("Execution time: " + str(exec_time))
     exit(0)
-
-
-
-def load_args():
-    parser = argparse.ArgumentParser(description="This script is for running caliper benchmark")
-    # parser.add_argument("--ipaddress", help="IP Address of the node SUT", required=True)
-    # parser.add_argument("--port", help="Used port", required=True)
-    # parser.add_argument("--account", help="The account of the node", required=True)
-    # parser.add_argument("--password", help="Password for the account", required=True)
-    parser.add_argument("--interval", help="Block interval", required=True)
-    parser.add_argument("--gaslimit", help="Block gas limit", required=True)
