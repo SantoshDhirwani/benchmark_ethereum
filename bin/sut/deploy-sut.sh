@@ -4,11 +4,12 @@
 
 set -e
 
+#################################################################################
+
 NUMBER_NODES=${1}
 BLOCK_INTERVAL=${2}
 BLOCK_SIZE=${3}
 NEW_SETUP=${4}
-GCLOUD_OUTPUT=${5}
 INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=$(jq -r '.eth_param.templateName'  ../config/config.json)
@@ -18,17 +19,10 @@ USERNAME=$(jq -r '.USERNAME'  ../config/config.json)
 PASSWORD=$(jq -r '.PASSWORD'  ../config/config.json)
 NETWORK_ID=$(jq -r '.NETWORK_ID'  ../config/config.json)
 
-# clean previous sut
+CURRENT_BOOTNODE=$(gcloud compute instances list --filter="running" | grep -w 'ethereum-sut' | wc -l)
+#################################################################################
 
-if [ X${NEW_SETUP} == "X1" ]
-then
-echo DELETING PREVIOUS SETUP, THIS MIGHT TAKE SOME TIME...
-echo
-echo | gcloud -q compute instance-groups managed delete ${INSTANCE_GROUP_NAME} ${GCLOUD_OUTPUT} || true
-echo | gcloud -q compute instances delete ${BOOT_NODE_NAME} ${GCLOUD_OUTPUT} || true
-echo
-echo PREVIOUS SETUP DELETED
-
+function create_new() {
 # run bootnode
 echo ---- CREATING BOOTNODE ----
 gcloud compute instances create ${BOOT_NODE_NAME} --source-instance-template ${INSTANCE_TEMPLATE} ${GCLOUD_OUTPUT}
@@ -49,15 +43,56 @@ gcloud compute instance-groups managed set-autoscaling ${INSTANCE_GROUP_NAME} \
   --max-num-replicas=${NUMBER_NODES} \
   --min-num-replicas=${NUMBER_NODES} \
    ${GCLOUD_OUTPUT}
+}
+
+# clean previous sut
+function delete_previous() {
+echo DELETING PREVIOUS SETUP, THIS MIGHT TAKE SOME TIME...
+echo
+echo | gcloud -q compute instance-groups managed delete ${INSTANCE_GROUP_NAME} || true
+echo | gcloud -q compute instances delete ${BOOT_NODE_NAME} || true
+echo
+echo PREVIOUS SETUP DELETED
+}
+
+function check_user_input() {
+while echo "Checking your existing Google Cloud project setup."
+do
+    if [ ${NEW_SETUP} -eq 1 ]
+    then
+            delete_previous
+            sleep 1
+            create_new
+            break
+
+    elif [ $CURRENT_BOOTNODE -eq $NUMBER_NODES ]
+    then
+            echo "Google Cloud setup verified successfully."
+            break
+    else
+        echo -ne '\n'
+        echo "Please check your existing Google Cloud project setup."
+        exit 0
+    fi
+done
+}
+
+if [ $NEW_SETUP -le 1 ]
+    then
+        check_user_input
+else
+    echo -ne '\n'
+    echo "Invalid input. Please enter either 0 or 1."
+    exit 0
+fi
 
 echo SLEEPING FOR 30 SECONDS TO MAKE SURE INSTANCES ARE UP!
 sleep 30
-fi
 
 IP_BOOTNODE=$(gcloud compute instances list --filter="name~${BOOT_NODE_NAME}" --format='value(INTERNAL_IP)')
-gcloud compute ssh ${USERNAME}@${BOOT_NODE_NAME} --command "killall bootnode || true" ${GCLOUD_OUTPUT}
-gcloud compute ssh ${USERNAME}@${BOOT_NODE_NAME} --command "rm -f boot.key && bootnode -genkey boot.key" ${GCLOUD_OUTPUT}
-gcloud compute ssh ${USERNAME}@${BOOT_NODE_NAME} --command "nohup bootnode -nodekey boot.key -addr 0.0.0.0:30310 > /dev/null 2>&1 &" ${GCLOUD_OUTPUT}
+gcloud compute ssh ${USERNAME}@${BOOT_NODE_NAME} --command "killall bootnode || true"
+gcloud compute ssh ${USERNAME}@${BOOT_NODE_NAME} --command "rm -f boot.key && bootnode -genkey boot.key"
+gcloud compute ssh ${USERNAME}@${BOOT_NODE_NAME} --command "nohup bootnode -nodekey boot.key -addr 0.0.0.0:30310 > /dev/null 2>&1 &"
 BOOTNODE_PID=$(gcloud compute ssh ${USERNAME}@${BOOT_NODE_NAME} --command "pgrep bootnode || true")
 if [ X${BOOTNODE_PID} == "X" ]
 then
@@ -81,9 +116,9 @@ ACCOUNT_LIST=()
 echo ---- CREATING ACCOUNTS ON NODES ----
 for index in ${!INSTANCE_LIST[@]}; do
     echo CREATING GETH ACCOUNT ON ${INSTANCE_LIST[index]}
-    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "rm -rf .ethereum" ${GCLOUD_OUTPUT}
-    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "killall geth || true" ${GCLOUD_OUTPUT}
-    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "echo ${PASSWORD} > password && geth --datadir .ethereum/ account new --password password" ${GCLOUD_OUTPUT}
+    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "rm -rf .ethereum"
+    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "killall geth || true"
+    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "echo ${PASSWORD} > password && geth --datadir .ethereum/ account new --password password"
     ACCOUNT=$(gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ account list | cut -d "{" -f2 | cut -d "}" -f1")
     ACCOUNT_LIST[index]=${ACCOUNT}
 done
@@ -111,14 +146,14 @@ jq -c ".gasLimit = \"0x${gaslimit}\"" genesis.json > tmp.$$.json && mv tmp.$$.js
 echo ---- CONFIGURING AND RUNNING GETH IN NODES ----
 for index in ${!INSTANCE_LIST[@]}; do
     echo GENESIS INIT ON ${INSTANCE_LIST[index]}
-    gcloud compute scp genesis.json ${USERNAME}@${INSTANCE_LIST[index]}:~/genesis.json ${GCLOUD_OUTPUT}
-    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ init genesis.json" ${GCLOUD_OUTPUT}
+    gcloud compute scp genesis.json ${USERNAME}@${INSTANCE_LIST[index]}:~/genesis.json
+    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ init genesis.json"
     echo
     echo GENESIS INITIALISED on ${INSTANCE_LIST[index]}
     ACCOUNT=$(gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ account list | cut -d "{" -f2 | cut -d "}" -f1")
     #start the node
     gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "nohup geth --datadir .ethereum/ --syncmode 'full' --port 30311 --rpc --rpcaddr '0.0.0.0' --rpcport 8501 --rpcapi 'personal,db,eth,net,web3,txpool,miner' --bootnodes \"${BOOTNODE_ENODE}\" --networkid ${NETWORK_ID} --gasprice '1' --unlock 0x${ACCOUNT} --password password --allow-insecure-unlock --nousb --mine --rpccorsdomain '*' --nat 'any' > /dev/null 2>&1 &"
-    GETH=$( gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "pgrep geth" ${GCLOUD_OUTPUT})
+    GETH=$( gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "pgrep geth")
     if [ X${GETH} == "X" ]
     then
         echo geth process is not running on nodes
