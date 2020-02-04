@@ -13,10 +13,15 @@ CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 # 2: Print everything
 
 verbose_level = int(sys.argv[1])
-gcp_setup = int(sys.argv[2])
+
 VERBOSE_LEVEL_0 = 0
 VERBOSE_LEVEL_1 = 1
 VERBOSE_LEVEL_2 = 2
+
+gcp_setup = int(sys.argv[2])
+
+GCP_SETUP_0 = 0
+GCP_SETUP_1 = 1
 
 ANALYZER_PATH = "analyzer/"
 SUT_PATH = "sut/"
