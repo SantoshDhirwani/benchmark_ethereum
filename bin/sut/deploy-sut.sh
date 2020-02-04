@@ -15,6 +15,21 @@ INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=$(jq -r '.eth_param.templateName'  ../config/config.json)
 
+CURRENT_BOOTNODE=$(gcloud compute instances list --filter="running" | grep -w 'ethereum-sut' | wc -l)
+
+if [ ${NEW_SETUP} == "0" ]
+then
+  if [ ${CURRENT_BOOTNODE} == ${NUMBER_NODES} ]
+  then
+    echo #${CURRENT_BOOTNODE}
+    else
+      echo "Please check your GCP setup."
+      exit 1
+  fi
+else
+  echo
+fi
+
 #receiving the values of Username, Password and NetworkID from config.json
 USERNAME=$(jq -r '.USERNAME'  ../config/config.json)
 PASSWORD=$(jq -r '.PASSWORD'  ../config/config.json)
