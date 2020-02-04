@@ -1,0 +1,60 @@
+2020.02.04-13:01:14.199[90m debug[39m [caliper] [local-client.js] 	Constructed a winston logger with the specified settings
+2020.02.04-13:01:15.611[32m info [39m [caliper] [benchmark-validator] 	No observer specified, will default to `none`
+2020.02.04-13:01:15.611[32m info [39m [caliper] [caliper-flow] 	####### Caliper Test #######
+2020.02.04-13:01:15.614[90m debug[39m [caliper] [testObserver.js] 	Creating test observer of type none
+2020.02.04-13:01:15.620[32m info [39m [caliper] [null-observer] 	Configured observer
+2020.02.04-13:01:15.625[32m info [39m [caliper] [caliper-utils] 	Executing command: cd /Users/ankush.sharma1@ibm.com/Desktop/CP/cp_ws_1920/bin/workload;echo start benchmark
+2020.02.04-13:02:33.173[31m error[39m [caliper] [caliper-flow] 	Error: Error: Invalid JSON RPC response: ""
+    at Object.InvalidResponse (/usr/local/lib/node_modules/web3/node_modules/web3-core-helpers/src/errors.js:42:16)
+    at XMLHttpRequest.request.onreadystatechange (/usr/local/lib/node_modules/web3/node_modules/web3-providers-http/src/index.js:92:32)
+    at XMLHttpRequestEventTarget.dispatchEvent (/usr/local/lib/node_modules/web3/node_modules/xhr2-cookies/dist/xml-http-request-event-target.js:34:22)
+    at XMLHttpRequest._setReadyState (/usr/local/lib/node_modules/web3/node_modules/xhr2-cookies/dist/xml-http-request.js:208:14)
+    at XMLHttpRequest._onHttpRequestError (/usr/local/lib/node_modules/web3/node_modules/xhr2-cookies/dist/xml-http-request.js:349:14)
+    at ClientRequest.<anonymous> (/usr/local/lib/node_modules/web3/node_modules/xhr2-cookies/dist/xml-http-request.js:252:61)
+    at ClientRequest.emit (events.js:210:5)
+    at Socket.socketErrorListener (_http_client.js:407:9)
+    at Socket.emit (events.js:210:5)
+    at emitErrorNT (internal/streams/destroy.js:84:8)
+    at processTicksAndRejections (internal/process/task_queues.js:80:21)
+2020.02.04-13:02:33.174[90m debug[39m [caliper] [null-observer] 	No action taken by NullObserver on stopWatch
+2020.02.04-13:02:33.175[32m info [39m [caliper] [caliper-utils] 	Executing command: cd /Users/ankush.sharma1@ibm.com/Desktop/CP/cp_ws_1920/bin/workload;echo finish benchmark
+2020.02.04-13:02:34.598[90m debug[39m [caliper] [local-client.js] 	Constructed a winston logger with the specified settings
+2020.02.04-13:02:36.158[32m info [39m [caliper] [benchmark-validator] 	No observer specified, will default to `none`
+2020.02.04-13:02:36.160[32m info [39m [caliper] [caliper-flow] 	####### Caliper Test #######
+2020.02.04-13:02:36.162[90m debug[39m [caliper] [testObserver.js] 	Creating test observer of type none
+2020.02.04-13:02:36.167[32m info [39m [caliper] [null-observer] 	Configured observer
+2020.02.04-13:02:36.171[32m info [39m [caliper] [caliper-utils] 	Executing command: cd /Users/ankush.sharma1@ibm.com/Desktop/CP/cp_ws_1920/bin/workload;echo start benchmark
+2020.02.04-13:02:44.366[31m error[39m [caliper] [caliper-flow] 	Error: Error: Invalid JSON RPC response: ""
+    at Object.InvalidResponse (/usr/local/lib/node_modules/web3/node_modules/web3-core-helpers/src/errors.js:42:16)
+    at XMLHttpRequest.request.onreadystatechange (/usr/local/lib/node_modules/web3/node_modules/web3-providers-http/src/index.js:92:32)
+    at XMLHttpRequestEventTarget.dispatchEvent (/usr/local/lib/node_modules/web3/node_modules/xhr2-cookies/dist/xml-http-request-event-target.js:34:22)
+    at XMLHttpRequest._setReadyState (/usr/local/lib/node_modules/web3/node_modules/xhr2-cookies/dist/xml-http-request.js:208:14)
+    at XMLHttpRequest._onHttpRequestError (/usr/local/lib/node_modules/web3/node_modules/xhr2-cookies/dist/xml-http-request.js:349:14)
+    at ClientRequest.<anonymous> (/usr/local/lib/node_modules/web3/node_modules/xhr2-cookies/dist/xml-http-request.js:252:61)
+    at ClientRequest.emit (events.js:210:5)
+    at Socket.socketErrorListener (_http_client.js:407:9)
+    at Socket.emit (events.js:210:5)
+    at emitErrorNT (internal/streams/destroy.js:84:8)
+    at processTicksAndRejections (internal/process/task_queues.js:80:21)
+2020.02.04-13:02:44.372[90m debug[39m [caliper] [null-observer] 	No action taken by NullObserver on stopWatch
+2020.02.04-13:02:44.372[32m info [39m [caliper] [caliper-utils] 	Executing command: cd /Users/ankush.sharma1@ibm.com/Desktop/CP/cp_ws_1920/bin/workload;echo finish benchmark
+2020.02.04-13:02:45.256[90m debug[39m [caliper] [local-client.js] 	Constructed a winston logger with the specified settings
+2020.02.04-13:02:47.104[32m info [39m [caliper] [benchmark-validator] 	No observer specified, will default to `none`
+2020.02.04-13:02:47.105[32m info [39m [caliper] [caliper-flow] 	####### Caliper Test #######
+2020.02.04-13:02:47.108[90m debug[39m [caliper] [testObserver.js] 	Creating test observer of type none
+2020.02.04-13:02:47.111[32m info [39m [caliper] [null-observer] 	Configured observer
+2020.02.04-13:02:47.118[32m info [39m [caliper] [caliper-utils] 	Executing command: cd /Users/ankush.sharma1@ibm.com/Desktop/CP/cp_ws_1920/bin/workload;echo start benchmark
+2020.02.04-13:02:55.222[31m error[39m [caliper] [caliper-flow] 	Error: Error: Invalid JSON RPC response: ""
+    at Object.InvalidResponse (/usr/local/lib/node_modules/web3/node_modules/web3-core-helpers/src/errors.js:42:16)
+    at XMLHttpRequest.request.onreadystatechange (/usr/local/lib/node_modules/web3/node_modules/web3-providers-http/src/index.js:92:32)
+    at XMLHttpRequestEventTarget.dispatchEvent (/usr/local/lib/node_modules/web3/node_modules/xhr2-cookies/dist/xml-http-request-event-target.js:34:22)
+    at XMLHttpRequest._setReadyState (/usr/local/lib/node_modules/web3/node_modules/xhr2-cookies/dist/xml-http-request.js:208:14)
+    at XMLHttpRequest._onHttpRequestError (/usr/local/lib/node_modules/web3/node_modules/xhr2-cookies/dist/xml-http-request.js:349:14)
+    at ClientRequest.<anonymous> (/usr/local/lib/node_modules/web3/node_modules/xhr2-cookies/dist/xml-http-request.js:252:61)
+    at ClientRequest.emit (events.js:210:5)
+    at Socket.socketErrorListener (_http_client.js:407:9)
+    at Socket.emit (events.js:210:5)
+    at emitErrorNT (internal/streams/destroy.js:84:8)
+    at processTicksAndRejections (internal/process/task_queues.js:80:21)
+2020.02.04-13:02:55.223[90m debug[39m [caliper] [null-observer] 	No action taken by NullObserver on stopWatch
+2020.02.04-13:02:55.223[32m info [39m [caliper] [caliper-utils] 	Executing command: cd /Users/ankush.sharma1@ibm.com/Desktop/CP/cp_ws_1920/bin/workload;echo finish benchmark

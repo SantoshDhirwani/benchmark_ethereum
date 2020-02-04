@@ -1,0 +1,22 @@
+{
+    "ethereum": {
+        "contractDeployerAddress": "0xc254bfbc8de1541eb600bd098017407ce5622cc3", 
+        "url": "http://104.155.80.201:8501", 
+        "contractDeployerAddressPassword": "cloudproto", 
+        "transactionConfirmationBlocks": 2, 
+        "fromAddressPassword": "cloudproto", 
+        "contracts": {
+            "simple": {
+                "path": "caliper-config/src/ethereum/simple/simple.json"
+            }
+        }, 
+        "fromAddress": "0xc254bfbc8de1541eb600bd098017407ce5622cc3"
+    }, 
+    "caliper": {
+        "command": {
+            "start": "echo start benchmark", 
+            "end": "echo finish benchmark"
+        }, 
+        "blockchain": "ethereum"
+    }
+}

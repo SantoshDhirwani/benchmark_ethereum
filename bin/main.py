@@ -389,6 +389,7 @@ def find_optimal_parameters():
 
 
 if __name__ == '__main__':
+    sys.stdout=open("bash_console.txt","w")
     print('Starting tool execution')
     start_time = time.time()
     # Backing up old results
@@ -405,10 +406,10 @@ if __name__ == '__main__':
     print('SUT successfully built')
     print('Starting calculation of optimal block interval and block gas limit for maximum throughput')
     result = find_optimal_parameters()
-    print("Best result found: " + str(result))
+    print("Best result found: " + str(result),file=open(" python_console.txt", "a"))
     if verbose_level >= VERBOSE_LEVEL_1:
         print('Aggregating all the workload reports')
     run_file(['python', _get_path(AGGREGATE_RESULTS_PATH)], verbose=verbose_level == VERBOSE_LEVEL_2)
     exec_time = (time.time() - start_time)
-    print("Execution time: " + str(exec_time))
+    print("Execution time: " + str(exec_time),file=open(" python_console.txt", "a"))
     exit(0)
