@@ -395,15 +395,22 @@ if __name__ == '__main__':
     # Backing up old results
     run_file(['python', _get_path(BACKUP_PATH)], verbose=verbose_level == VERBOSE_LEVEL_2)
 
+
     # Building SUT for the first time
-    print('Building the SUT')
-    run_file(
-        ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
-         str(config['test_param']['maxInterval']),
-         str(config['test_param']['defaultGas']), '1',
-         '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
-        verbose=verbose_level >= VERBOSE_LEVEL_2)
-    print('SUT successfully built')
+    print('Checking if the SUT needs to be built.')
+    if gcp_setup == GCP_SETUP_1:
+        run_file(
+            ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+            str(config['test_param']['maxInterval']),
+            str(config['test_param']['defaultGas']), '1',
+            '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
+            verbose=verbose_level >= VERBOSE_LEVEL_2)
+        print('SUT successfully built')
+
+    if gcp_setup == GCP_SETUP_0:
+        print('It is not required to build an SUT at the moment.')
+
+
     print('Starting calculation of optimal block interval and block gas limit for maximum throughput')
     result = find_optimal_parameters()
     print("Best result found: " + str(result))
