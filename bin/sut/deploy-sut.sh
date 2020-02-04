@@ -10,6 +10,7 @@ NUMBER_NODES=${1}
 BLOCK_INTERVAL=${2}
 BLOCK_SIZE=${3}
 NEW_SETUP=${4}
+GCLOUD_OUTPUT=${5}
 INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=$(jq -r '.eth_param.templateName'  ../config/config.json)
