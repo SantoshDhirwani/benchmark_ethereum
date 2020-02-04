@@ -11,6 +11,7 @@ reportsDir = WORKLOAD_PATH + 'caliper-reports/*.html'
 resultsDir = ANALYZER_PATH + 'aggregated-results/'
 html_template = ANALYZER_PATH + 'dashboard.html'
 html_result = ANALYZER_PATH + 'aggregated-results/dashboard.html'
+plot_image = ANALYZER_PATH + 'aggregated-results/plot_results.png'
 r_script = ANALYZER_PATH + 'plot_results.R'
 copy(html_template, html_result)
 files = glob.glob(reportsDir)
@@ -69,8 +70,16 @@ if __name__ == '__main__':
         file_name_csv = resultsDir + 'data_{0}.csv'.format(name)
         file_name_html = resultsDir + 'data_{0}.html'.format(name)
         dat[dat['Name'] == name].drop('Name', axis=1).to_csv(file_name_csv, index=False)
+        df = dat[dat['Name'] == name].drop('Name', axis=1)
         html = dat[dat['Name'] == name].drop('Name', axis=1).to_html(index=False)
 
+    plot = df.plot.hexbin(x='blockInterval',
+                          y='gasLimit',
+                          C='throughput',
+                          gridsize=10,
+                          cmap="viridis")
+    fig = plot.get_figure()
+    fig.savefig(plot_image)
     html = html.split('\n', 3)[3]
     # print(html)
     with open(html_result, "r+") as f:
@@ -82,6 +91,6 @@ if __name__ == '__main__':
         f.write(data)
         f.truncate()
 
-    run_command = os.system("Rscript " + r_script)
+    #run_command = os.system("Rscript " + r_script)
 
     exit(0)
