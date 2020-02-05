@@ -115,7 +115,7 @@ def find_min_interval():
                 print('Building SUT')
             run_file(
                 ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']), str(interval),
-                 str(config['test_param']['defaultGas']), '0',
+                 str(config['test_param']['defaultGas']), gcp_setup,
                  '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
                 verbose=verbose_level >= VERBOSE_LEVEL_2)
             if verbose_level >= VERBOSE_LEVEL_1:
@@ -161,7 +161,7 @@ def find_min_gas_limit(interval):
             run_file(
                 ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                  str(interval),
-                 str(upper_bound), '0', '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
+                 str(upper_bound), gcp_setup, '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
                 verbose=verbose_level == VERBOSE_LEVEL_2)
             if verbose_level >= VERBOSE_LEVEL_1:
                 print('SUT successfully built')
@@ -196,7 +196,7 @@ def find_min_gas_limit(interval):
             run_file(
                 ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                  str(interval),
-                 str(upper_bound), '0', '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
+                 str(upper_bound), gcp_setup, '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
                 verbose=verbose_level >= VERBOSE_LEVEL_2)
             if verbose_level >= VERBOSE_LEVEL_1:
                 print('SUT successfully built')
@@ -272,7 +272,7 @@ def find_optimal_parameters():
                 run_file(
                     ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                      str(interval),
-                     str(gas), '0', '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
+                     str(gas), gcp_setup, '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
                     verbose=verbose_level >= VERBOSE_LEVEL_2)
                 if verbose_level >= VERBOSE_LEVEL_1:
                     print('SUT successfully built')
@@ -407,7 +407,7 @@ if __name__ == '__main__':
         run_file(
             ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
             str(config['test_param']['maxInterval']),
-            str(config['test_param']['defaultGas']), '1',
+            str(config['test_param']['defaultGas']), gcp_setup,
             '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
             verbose=verbose_level >= VERBOSE_LEVEL_2)
         print('SUT successfully built')

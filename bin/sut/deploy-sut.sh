@@ -18,7 +18,7 @@ if [ ${NEW_SETUP} == "0" ]
 then
   if [ ${RUNNING_VMS} == ${NUMBER_NODES} ]
   then
-    echo
+    exit 0
   else
       if [ RUNNING_VMS != 0 ]
       then
