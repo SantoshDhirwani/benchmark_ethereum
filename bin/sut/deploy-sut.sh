@@ -13,18 +13,22 @@ INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=$(jq -r '.eth_param.templateName'  ../config/config.json)
 
-CURRENT_BOOTNODE=$(gcloud compute instances list --filter="running" | grep -w 'ethereum-sut' | wc -l)
-
+RUNNING_VMS=$(gcloud compute instances list --filter="running" | grep -w 'ethereum-sut' | wc -l)
 if [ ${NEW_SETUP} == "0" ]
 then
-  if [ ${CURRENT_BOOTNODE} == ${NUMBER_NODES} ]
+  if [ ${RUNNING_VMS} == ${NUMBER_NODES} ]
   then
-    echo #${CURRENT_BOOTNODE}
-    else
-      echo "Please check your GCP setup."
+    echo
+  else
+      if [ RUNNING_VMS != 0 ]
+      then
+        ${NUMBER_NODES}=${RUNNING_VMS}
+        echo "Disregarding number of nodes entered in config file."
+      else
+        echo "Existing setup has zero running VMs on Google Cloud."
       exit 1
+      fi
   fi
-else
   echo
 fi
 
