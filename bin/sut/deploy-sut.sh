@@ -14,22 +14,12 @@ BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=$(jq -r '.eth_param.templateName'  ../config/config.json)
 
 RUNNING_VMS=$(gcloud compute instances list --filter="running" | grep -w 'ethereum-sut' | wc -l)
-if [ ${NEW_SETUP} == "0" ]
+if [[ ${NEW_SETUP} == '0' && ${RUNNING_VMS} != ${NUMBER_NODES} ]]
 then
-  if [ ${RUNNING_VMS} == ${NUMBER_NODES} ]
-  then
-    exit 0
-  else
-      if [ RUNNING_VMS != 0 ]
-      then
-        ${NUMBER_NODES}=${RUNNING_VMS}
-        echo "Disregarding number of nodes entered in config file."
-      else
-        echo "Existing setup has zero running VMs on Google Cloud."
-      exit 1
-      fi
-  fi
-  echo
+    echo ${RUNNING_VMS}
+    echo ${NUMBER_NODES}
+    echo "Please check your existing Google cloud setup."
+    exit 1
 fi
 
 #receiving the values of Username, Password and NetworkID from config.json
