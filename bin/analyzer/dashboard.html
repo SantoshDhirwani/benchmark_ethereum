@@ -40,20 +40,8 @@
 
                 </ul>
 
-                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                    <span>Saved reports</span>
-                    <a class="d-flex align-items-center text-muted" href="#">
-                        <span data-feather="plus-circle"></span>
-                    </a>
-                </h6>
-                <ul class="nav flex-column mb-2">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span data-feather="file-text"></span>
-                            01-01-2020-20:00
-                        </a>
-                    </li>
-                </ul>
+
+
             </div>
         </nav>
 
@@ -64,13 +52,21 @@
                 </div>
             </div>
             <div class="alert alert-dark" role="alert">
-                Maximum throughput of <strong> {throughput} TPS </strong>has been found with a block interval of
-                <strong>{interval} seconds</strong> and <strong>{gaslimit} block gas limit</strong>.
+                Maximum throughput of <strong> {throughput} TPS </strong> has been found with a block interval of
+                <strong>{interval} seconds</strong> and <strong>{gaslimit}</strong> block gas limit.<br></br>
+
+                Total execution time for benchmarking is <strong>{executiontime}</strong> seconds
             </div>
             <iframe align="middle" width="600" height="600" src="bubbleplot.html"> </iframe>
-            <img src="line_graph.png" class="img-fluid" alt="Responsive image">
-
-            <h2>Benchmark Results</h2>
+            <br></br>Above illustrated graph displays throughput for different values of gaslimit and block interval. This bubble chart with gas limit on X-axis, block interval on Y-axis represents corresponding values of throughput through size of the bubble . To know exact value of throughput at a point, hover over the bubble.
+            <br></br>
+            <iframe align="middle" width="600" height="600" src="linegraph.html"> </iframe>
+            <br></br>
+            The above graph is an interactive line plot. The drop down menu can be used to display the line plot for a particular block interval.
+            <br></br>
+            <h2>Benchmark Results</h2> 
+            Following table describes the observation from the benchmarking experiment
+            <br></br>
             <div class="table-responsive">
                 <table class="table table-striped table-sm">
                     <thead>
@@ -95,13 +91,6 @@
 <script>
       feather.replace()
 
-
-
 </script>
-<script>
-    $(function(){
-      $("#bubbleplot").load("bubbleplot.html");
-    });
-    </script>
 </body>
 </html>

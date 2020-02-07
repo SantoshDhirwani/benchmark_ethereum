@@ -408,7 +408,12 @@ if __name__ == '__main__':
     print("Best result found: " + str(result))
     if verbose_level >= VERBOSE_LEVEL_1:
         print('Aggregating all the workload reports')
-    run_file(['python', _get_path(AGGREGATE_RESULTS_PATH)], verbose=verbose_level == VERBOSE_LEVEL_2)
+    key = list(result.keys())[0]
+    throughput = result[key]
+    interval = key.split(":")[0]
+    gaslimit = key.split(":")[1]
     exec_time = (time.time() - start_time)
+    run_file(['python', _get_path(AGGREGATE_RESULTS_PATH), "--interval", interval,
+              "--gaslimit", gaslimit, "--throughput", str(throughput),"--executiontime", str(exec_time)],verbose=verbose_level == VERBOSE_LEVEL_2)
     print("Execution time: " + str(exec_time))
     exit(0)

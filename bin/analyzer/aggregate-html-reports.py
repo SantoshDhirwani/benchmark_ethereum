@@ -65,6 +65,7 @@ if __name__ == '__main__':
     # create overall report
 
     dat.to_csv(resultsDir + 'data.csv', index=False)
+    dat=dat.sort_values(by=['throughput'],ascending=False)
     html = ''
     # create seperate fille for each function
     for name in dat['Name'].unique():
@@ -75,7 +76,7 @@ if __name__ == '__main__':
         html = dat[dat['Name'] == name].drop('Name', axis=1).to_html(index=False)
 
     html = html.split('\n', 3)[3]
-    #Create plots for report
+    #Create plots for Throughput analysis
     data = dat
     print(data.columns)
     data = data.loc[data['Name']=='transfer']
@@ -95,33 +96,61 @@ if __name__ == '__main__':
             )
             )])
     fig.update_layout(
-    title="Throughput for varying gaslimit and blockintervakl",
-    xaxis_title="Gaslimit",
-    yaxis_title="Block interval",
-    font=dict(
-    family="Courier New, monospace",
-    size=18,
-    color="#7f7f7f"
+    title="Throughput for varying gas limit and block interval ",
+    xaxis_title="Gas Limit",
+    yaxis_title="Block Interval"
     )
-    )
-    plotly.offline.plot(fig, filename='bubbleplot.html', auto_open=False)
+    plotly.offline.plot(fig, filename=resultsDir+'bubbleplot.html', auto_open=False)
     fig, ax = plt.subplots(1,1);
     data.groupby("blockInterval").plot(x="gasLimit", y="throughput", ax=ax)
     plt.xlabel('Gaslimit')
     plt.ylabel('Throughput')
     plt.legend([v[0] for v in data.groupby('blockInterval')['blockInterval']], title = 'Block interval')
     plt.savefig('line_graph.png')
+# Create Interactive plots
+
+    fig = go.Figure()
+    l = len(set(data.blockInterval))
+    buttons = list()
+    buttons.append(dict(label="All",
+                         method="update",
+                         args=[{"visible": [True]*l},
+                               {"title": "All Blockintervals",
+                                "annotations": []}]))
+    blockInterval = list(set(data.blockInterval))
+    for x in blockInterval:
+        temp=data.loc[data['blockInterval']==x]
+        temp=temp.sort_values(by=['gasLimit'])
+        print(temp)
+        fig.add_trace(go.Scatter(x=list(temp.gasLimit),y=list(temp.throughput),name="Blockinterval"+str(x)))
+        temp1 = [False]*l
+        temp1[blockInterval.index(x)] = True
+        buttons.append(dict(label=str(x),
+                         method="update",
+                         args=[{"visible": temp1},
+                               {"title": "Blockinterval "+str(x),
+                                "annotations": []}]))
+    fig.update_layout(
+        updatemenus=[
+            go.layout.Updatemenu(
+                active=0,
+                buttons=buttons,
+            )
+        ])
+
+    fig.update_layout(title_text="All Blockintervals",xaxis_title="Gas Limit",
+    yaxis_title="Throughput")
+
+    plotly.offline.plot(fig, filename=resultsDir+'linegraph.html',auto_open=False)
+
 
     # print(html)
     with open(html_result, "r+") as f:
         data = f.read()
         data = data.replace("{table}", html).replace("{interval}", config.interval).replace("{gaslimit}",
-                                                                                            config.gaslimit).replace(
-            "{throughput}", config.throughput)
+                config.gaslimit).replace("{throughput}", config.throughput).replace("{executiontime}", config.executiontime)
         f.seek(0)
         f.write(data)
         f.truncate()
-
-    #run_command = os.system("Rscript " + r_script)
 
     exit(0)
