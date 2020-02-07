@@ -1,18 +1,18 @@
 {
   "eth_param": {
-    "nodeNumber": 2,
+    "nodeNumber": 3,
     "templateName": "ethtemplate"
   },
   "test_param": {
     "maxGas": 15000000,
     "minGas": 2000000,
     "defaultGas": 10000000,
-    "gasStep": 5000000,
-    "gasLimitAccuracy": 500000,
+    "gasStep": 2000000,
+    "gasLimitAccuracy": 20000,
     "maxInterval": 15,
     "minInterval": 1,
     "intervalStep": 1,
-    "numberTrials": 2,
+    "numberTrials": 4,
     "sensitivity": 0.05
   },
   "run_caliper": {
