@@ -6,7 +6,7 @@ import queue
 import time
 
 CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
-ANALYZER_PATH ="analyzer/"
+ANALYZER_PATH = "analyzer/"
 SUT_PATH = "sut/"
 WORKLOAD_PATH = "workload/"
 DEPLOY_SUT_PATH = SUT_PATH + "deploy-sut.sh"
@@ -14,6 +14,7 @@ RUN_WORKLOAD_PATH = WORKLOAD_PATH + "run-caliper.py"
 AGGREGATE_RESULTS_PATH = ANALYZER_PATH + "aggregate-html-reports.py"
 GET_LAST_RESULT_PATH = ANALYZER_PATH + "get-last-throughput.py"
 BACKUP_PATH = ANALYZER_PATH + "backup-old-results.py"
+
 
 def _get_path(filename):
     return os.path.join(CURRENT_FOLDER, filename)
@@ -105,7 +106,7 @@ def find_min_interval():
     return -1
 
 
-def find_min_gas_limit(interval):
+def find_initial_min_gas_limit(interval):
     upper_bound = config['test_param']['minGas']
     lower_bound = upper_bound
 
@@ -169,6 +170,30 @@ def find_min_gas_limit(interval):
     return upper_bound
 
 
+def find_current_min_gas_limit(interval, pre_min_gaslimit):
+    success = False
+    accuracy = config["test_param"]["gasLimitAccuracy"]
+    while not success:
+        try:
+            run_file(
+                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+                 str(interval),
+                 str(pre_min_gaslimit), '0'])
+            run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
+                      '--gaslimit',
+                      str(pre_min_gaslimit)])
+            success = True
+            # UNCOMMENT ONLY FOR TESTING PURPOSES
+            # run_file(
+            #    ['sh', _get_path('test.sh'),
+            #     str(config['test_param']['defaultInterval']), str(gas)])
+        except Exception as e:
+            print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
+                str(interval), str(pre_min_gaslimit), e))
+            pre_min_gaslimit += accuracy
+    return pre_min_gaslimit
+
+
 def find_optimal_parameters():
     results = {}
     peaks = []
@@ -184,18 +209,23 @@ def find_optimal_parameters():
         exit(-1)
 
     # Finding the minimum block gas limit
-    minimum_gas_limit = find_min_gas_limit(interval)
-    if minimum_gas_limit < 0:
-        # failed to get minimum block gas limit for x interval. Stopping tool execution
-        print("Failed get minimum gas limit.")
-        exit(-1)
-    print("This is minimum gas limit: " + str(minimum_gas_limit))
+
     optimal = False
 
     while not optimal:
         print("Benchmarking with block interval of " + str(interval) + " seconds.")
         results[interval] = {}
         stop_reached = False
+        if len(peaks) == 0:
+            minimum_gas_limit = find_initial_min_gas_limit(interval)
+            if minimum_gas_limit < 0:
+                # failed to get minimum block gas limit for x interval. Stopping tool execution
+                print("Failed get minimum gas limit.")
+                exit(-1)
+        else:
+            minimum_gas_limit = find_current_min_gas_limit(interval, minimum_gas_limit)
+
+        print("Minimum gas limit found: " + str(minimum_gas_limit))
         gas = minimum_gas_limit
         tries = 0
         gaslimit_queue = queue.Queue()
