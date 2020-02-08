@@ -70,12 +70,12 @@ then
     --min-num-replicas=${NUMBER_NODES}
 else
     echo multi-region setup activated
-    NUMBER_NODES=$(echo ${REGIONS} | jq '.Nodes | length')
+    NUMBER_NODES=$(echo ${REGIONS} | jq '. | length')
     gcloud compute instances create ${BOOT_NODE_NAME} --source-instance-template ${INSTANCE_TEMPLATE}
     for (( index=0; index<=${NUMBER_NODES}; index++ ))
     do
-        NODE_REGION=$(echo ${REGIONS} | jq '.Nodes[0].Region')
-        NODE_ZONE=$(echo ${REGIONS} | jq '.Nodes[0].Zone')
+        NODE_REGION=$(echo ${REGIONS} | jq '.[index].Region')
+        NODE_ZONE=$(echo ${REGIONS} | jq '.[index].Zone')
         gcloud compute instances create ${INSTANCE_GROUP_NAME}-${index} --source-instance-template ${INSTANCE_TEMPLATE} -ZONE ${NODE_ZONE} -REGION ${NODE_REGION}
     done
 fi
