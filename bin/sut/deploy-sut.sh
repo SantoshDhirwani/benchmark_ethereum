@@ -47,6 +47,12 @@ echo
 echo | gcloud -q compute instance-groups managed delete ${INSTANCE_GROUP_NAME} ${GCLOUD_OUTPUT} || true
 echo | gcloud -q compute instances delete ${BOOT_NODE_NAME} ${GCLOUD_OUTPUT} || true
 echo
+INSTANCE_LIST=( $(gcloud compute instances list --sort-by ~NAME --filter="name~^${INSTANCE_GROUP_NAME}" --format='value(name)') )
+echo ---- CREATING ACCOUNTS ON NODES ----
+for index in ${!INSTANCE_LIST[@]}; do
+    echo | gcloud -q compute instance-groups managed delete ${INSTANCE_LIST[index]} ${GCLOUD_OUTPUT} || true
+done
+echo
 echo PREVIOUS SETUP DELETED
 
 # run bootnode
@@ -75,7 +81,7 @@ else
     do
         NODE_REGION=$(echo ${REGIONS} | jq '.['$index'].Region')
         NODE_ZONE=$(echo ${REGIONS} | jq '.['$index'].Zone')
-        gcloud compute instances create ${INSTANCE_GROUP_NAME}-${index} --source-instance-template ${INSTANCE_TEMPLATE} -ZONE ${NODE_ZONE} -REGION ${NODE_REGION}
+        gcloud compute instances create ${INSTANCE_GROUP_NAME}-${index} --source-instance-template ${INSTANCE_TEMPLATE} --zone ${NODE_ZONE}
     done
 fi
 
