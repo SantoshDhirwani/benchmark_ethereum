@@ -79,8 +79,7 @@ else
     NUMBER_NODES=$(echo ${REGIONS} | jq '. | length')
     for (( index=0; index<=${NUMBER_NODES}; index++ ))
     do
-        NODE_REGION=$(echo ${REGIONS} | jq '.['$index'].Region')
-        NODE_ZONE=$(echo ${REGIONS} | jq '.['$index'].Zone')
+        NODE_ZONE=$(echo ${REGIONS} | jq -r '.['$index'].Zone')
         gcloud compute instances create ${INSTANCE_GROUP_NAME}-${index} --source-instance-template ${INSTANCE_TEMPLATE} --zone ${NODE_ZONE}
     done
 fi
