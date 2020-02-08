@@ -2,7 +2,7 @@
 
 
 
-#A benchmarking-based approach to maximize throughput of the private Ethereum
+# A benchmarking-based approach to maximize throughput of the private Ethereum
 
 
 Our goals were to achieve :
@@ -79,14 +79,15 @@ The script checks if the needed dependencies are installed or how to install the
 
 
 **Dependency**
-Python 3 libraries : pandas, lxml, matplotlib, numpy
+Python 3 libraries : pandas, lxml, matplotlib, numpy, web3, pm2 : Latest version
 Google SDK
 Geth
 Puppeth
 jq-command
 npm (Node.js)
 Caliper
- 
+web3 : 1.2.6
+pm2 : 4.2.3
 
 Note: If you have jq,npm, geth, puppeth and gcloud not installed, you will be provided with the links to follow the easy steps of installing them. This script does not provide their installation, because each user have different OS, and you need to download and install the packages depending on the enviroment you are working from.
 
@@ -95,10 +96,10 @@ Note: If you have jq,npm, geth, puppeth and gcloud not installed, you will be pr
 
 cd cp_ws_1920/bin
 
-python main.py
+python3 main.py 0 or 1 or 2
 
 
-## Config (TO-Be-Discussed)
+## Config
 
 config.json has its objects read by the scripts main.py , deploy-sut.sh , create-template.sh and run-caliper.py .
 
