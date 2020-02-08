@@ -54,7 +54,7 @@ else
 fi
 echo ""
 
-cd bin/workload
+cd bin
 
 
 if hash "caliper" 2>/dev/null; then
