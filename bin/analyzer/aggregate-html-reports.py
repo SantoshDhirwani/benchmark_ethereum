@@ -7,6 +7,7 @@ from shutil import copy
 import plotly.graph_objects as go
 import plotly
 import matplotlib.pyplot as plt
+import time
 
 ANALYZER_PATH = "analyzer/"
 WORKLOAD_PATH = "workload/"
@@ -24,7 +25,8 @@ def load_args():
     parser.add_argument("--throughput", help="Max thoughput", required=True)
     parser.add_argument("--executiontime", help="Execution Time", required=True)
     return parser.parse_args()
-
+def convert():
+    return time.strftime("%H hrs %M mins %S secs", time.gmtime(int(config.executiontime)))
 if __name__ == '__main__':
     config = load_args()
     my_tables = []
@@ -32,10 +34,10 @@ if __name__ == '__main__':
         tables = pd.read_html(file)
         temp = tables[0]
         temp['fileName'] = file.split('/')[-1]
-        print(temp['fileName'])
         my_tables.append(temp)
     temp = my_tables[0][['Name']].values.tolist()
     name = my_tables[0][['Name']]
+    temp = int(config.executiontime)
     final = my_tables[0].drop(1)
     final['ExperimentNo'] = 0
     final['gasLimit'] = str(final['fileName']).split('-')[1].split('.')[0]
@@ -78,7 +80,6 @@ if __name__ == '__main__':
     html = html.split('\n', 3)[3]
     #Create plots for Throughput analysis
     data = dat
-    print(data.columns)
     data = data.loc[data['Name']=='transfer']
     gaslimit = data['gasLimit'].values
     blockinterval = data['blockInterval'].values
@@ -121,7 +122,6 @@ if __name__ == '__main__':
     for x in blockInterval:
         temp=data.loc[data['blockInterval']==x]
         temp=temp.sort_values(by=['gasLimit'])
-        print(temp)
         fig.add_trace(go.Scatter(x=list(temp.gasLimit),y=list(temp.throughput),name="Blockinterval"+str(x)))
         temp1 = [False]*l
         temp1[blockInterval.index(x)] = True
@@ -148,7 +148,7 @@ if __name__ == '__main__':
     with open(html_result, "r+") as f:
         data = f.read()
         data = data.replace("{table}", html).replace("{interval}", config.interval).replace("{gaslimit}",
-                config.gaslimit).replace("{throughput}", config.throughput).replace("{executiontime}", config.executiontime)
+                config.gaslimit).replace("{throughput}", config.throughput).replace("{executiontime}", convert())
         f.seek(0)
         f.write(data)
         f.truncate()
