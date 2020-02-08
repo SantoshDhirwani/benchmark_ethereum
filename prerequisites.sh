@@ -69,7 +69,7 @@ fi
 cd -
 echo ""
 
-echo "Let's make sure that the needed python libraries are installed! "
+echo "Let's make sure that the needed python 3 libraries are installed! "
 echo ""
 
 if python -c 'import pkgutil; exit(not pkgutil.find_loader("pandas"))'; then
