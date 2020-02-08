@@ -54,7 +54,6 @@ then
 else
     echo multi-region setup activated
     NUMBER_NODES=$(echo ${REGIONS} | jq '. | length')
-    gcloud compute instances create ${BOOT_NODE_NAME} --source-instance-template ${INSTANCE_TEMPLATE}
     for (( index=0; index<=${NUMBER_NODES}; index++ ))
     do
         NODE_REGION=$(echo ${REGIONS} | jq '.[index].Region')
