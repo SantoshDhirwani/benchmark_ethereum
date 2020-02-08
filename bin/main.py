@@ -55,6 +55,14 @@ def load_config(path):
 config = load_config(CONFIG_PATH)
 
 
+#def run_file(file_path, verbose=True):
+#    process = subprocess.Popen(
+#        file_path,
+#        stdout=subprocess.PIPE,
+#        stderr=subprocess.PIPE,
+#        universal_newlines=True
+#    )
+
 def run_file(file_path, verbose=True):
     process = subprocess.Popen(
         file_path,
@@ -62,6 +70,31 @@ def run_file(file_path, verbose=True):
         stderr=subprocess.PIPE,
         universal_newlines=True
     )
+
+    while True:
+        output = process.stdout.readline()
+        err_output = process.stderr.readline()
+        if verbose:
+            print(output.strip())
+            print(err_output.strip())
+
+        return_code = process.poll()
+        if return_code is not None:
+            for output in process.stdout.readlines():
+                if verbose:
+                    print(output.strip())
+            for output in process.stderr.readlines():
+                if verbose:
+                    print(output.strip())
+
+            if return_code:
+                raise Exception(
+                    'File "{}" has not finished successfully'.format(
+                        file_path[1],
+                    )
+                )
+
+            break
 
     while True:
         output = process.stdout.readline()
