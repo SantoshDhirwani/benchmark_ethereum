@@ -13,7 +13,7 @@ INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=$(jq -r '.eth_param.templateName'  ../config/config.json)
 
-RUNNING_VMS=$(gcloud compute instances list --filter="running" | grep -w 'ethereum-sut' | wc -l)
+RUNNING_VMS=$(gcloud compute instances list --filter="running AND name~${BOOT_NODE_NAME}"|wc -l|sed 's/ //g')
 if [[ ${NEW_SETUP} == '0' && ${RUNNING_VMS} != ${NUMBER_NODES} ]]
 then
     printf 'The number of nodes and VMs are not equal, please check your existing Google cloud setup and the config file. '
