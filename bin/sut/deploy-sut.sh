@@ -9,6 +9,7 @@ BLOCK_INTERVAL=${2}
 BLOCK_SIZE=${3}
 NEW_SETUP=${4}
 GCLOUD_OUTPUT=${5}
+
 INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=$(jq -r '.eth_param.templateName'  ../config/config.json)
@@ -17,6 +18,8 @@ INSTANCE_TEMPLATE=$(jq -r '.eth_param.templateName'  ../config/config.json)
 USERNAME=$(jq -r '.USERNAME'  ../config/config.json)
 PASSWORD=$(jq -r '.PASSWORD'  ../config/config.json)
 NETWORK_ID=$(jq -r '.NETWORK_ID'  ../config/config.json)
+REGIONS=$(jq -r '.Nodes'  ../config/config.json)
+
 
 # clean previous sut
 
@@ -39,16 +42,26 @@ sleep 30
 # create instance group of sealer nodes
 echo
 echo ---- CREATING NODES ----
-gcloud compute instance-groups managed create ${INSTANCE_GROUP_NAME} \
-   --base-instance-name ethereum-sut \
-   --size ${NUMBER_NODES} \
-   --template ${INSTANCE_TEMPLATE} \
-   ${GCLOUD_OUTPUT}
-
-gcloud compute instance-groups managed set-autoscaling ${INSTANCE_GROUP_NAME} \
-  --max-num-replicas=${NUMBER_NODES} \
-  --min-num-replicas=${NUMBER_NODES} \
-   ${GCLOUD_OUTPUT}
+if [ X${REGIONS} == "X" ]
+then
+    gcloud compute instance-groups managed create ${INSTANCE_GROUP_NAME} \
+    --base-instance-name ${INSTANCE_GROUP_NAME} \
+    --size ${NUMBER_NODES} \
+    --template ${INSTANCE_TEMPLATE}
+    gcloud compute instance-groups managed set-autoscaling ${INSTANCE_GROUP_NAME} \
+    --max-num-replicas=${NUMBER_NODES} \
+    --min-num-replicas=${NUMBER_NODES}
+else
+    echo multi-region setup activated
+    NUMBER_NODES=$(echo ${REGIONS} | jq '.Nodes | length')
+    gcloud compute instances create ${BOOT_NODE_NAME} --source-instance-template ${INSTANCE_TEMPLATE}
+    for (( index=0; index<=${NUMBER_NODES}; index++ ))
+    do
+        NODE_REGION=$(echo ${REGIONS} | jq '.Nodes[0].Region')
+        NODE_ZONE=$(echo ${REGIONS} | jq '.Nodes[0].Zone')
+        gcloud compute instances create ${INSTANCE_GROUP_NAME}-${index} --source-instance-template ${INSTANCE_TEMPLATE} -ZONE ${NODE_ZONE} -REGION ${NODE_REGION}
+    done
+fi
 
 echo SLEEPING FOR 30 SECONDS TO MAKE SURE INSTANCES ARE UP!
 sleep 30
@@ -73,8 +86,8 @@ BOOTNODE_ENODE=enode://${hex}@${IP_BOOTNODE}:30310?discport=30310
 
 echo THE BOOTNODE ENODE ADDRESS IS: ${BOOTNODE_ENODE}
 
-prefix=$(gcloud compute instance-groups managed list --format='value(baseInstanceName)' --filter='name~^'${INSTANCE_GROUP_NAME}'')
-INSTANCE_LIST=( $(gcloud compute instances list --sort-by ~NAME --filter="name~^${prefix}" --format='value(name)') )
+#prefix=$(gcloud compute instance-groups managed list --format='value(baseInstanceName)' --filter='name~^'${INSTANCE_GROUP_NAME}'')
+INSTANCE_LIST=( $(gcloud compute instances list --sort-by ~NAME --filter="name~^${INSTANCE_GROUP_NAME}" --format='value(name)') )
 ACCOUNT_LIST=()
 
 # create accounts on nodes
@@ -89,7 +102,7 @@ for index in ${!INSTANCE_LIST[@]}; do
 done
 
 ACCOUNT_STRING=""
-INSTANCE_IP_LIST=( $(gcloud compute instances list --sort-by ~NAME --filter="name~^${prefix}" --format='value(EXTERNAL_IP)') )
+INSTANCE_IP_LIST=( $(gcloud compute instances list --sort-by ~NAME --filter="name~^${INSTANCE_GROUP_NAME}" --format='value(EXTERNAL_IP)') )
 INSTANCES_STRING=""
 
 for index in ${!ACCOUNT_LIST[@]}; do
