@@ -105,7 +105,7 @@ def find_min_interval():
             if verbose_level >= VERBOSE_LEVEL_1:
                 print('Benchmarking to find minimum block interval value, current configuration ' + str(
                     interval) + ' seconds and ' +
-                    str(config['test_param']['defaultGas']) + ' gas limit.')
+                      str(config['test_param']['defaultGas']) + ' gas limit.')
                 print('Building SUT')
             run_file(
                 ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']), str(interval),
@@ -232,6 +232,8 @@ def find_current_min_gas_limit(interval, pre_min_gaslimit):
     accuracy = config["test_param"]["gasLimitAccuracy"]
     while not success:
         try:
+            if verbose_level >= VERBOSE_LEVEL_1:
+                print("Calculating minimum gas limit for block interval " + str(interval) + "s")
             run_file(
                 ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                  str(interval),
@@ -240,6 +242,9 @@ def find_current_min_gas_limit(interval, pre_min_gaslimit):
                       '--gaslimit',
                       str(pre_min_gaslimit)])
             success = True
+            if verbose_level >= VERBOSE_LEVEL_1:
+                print(
+                    "Minimum block gas limit for block interval " + str(interval) + "s found: " + str(pre_min_gaslimit))
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
             #    ['sh', _get_path('test.sh'),
