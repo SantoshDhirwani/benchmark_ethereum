@@ -13,6 +13,12 @@ INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
 INSTANCE_TEMPLATE=$(jq -r '.eth_param.templateName'  ../config/config.json)
 
+if [ ${NEW_SETUP} != '0' ] && [ ${NEW_SETUP} != '1' ]
+then
+  printf "Invalid argument. Please enter 0 or 1"
+  exit 1
+fi
+
 RUNNING_VMS=$(gcloud compute instances list --filter="running AND name~${BOOT_NODE_NAME}"|wc -l|sed 's/ //g')
 if [[ ${NEW_SETUP} == '0' && ${RUNNING_VMS} != ${NUMBER_NODES} ]]
 then
@@ -22,6 +28,7 @@ then
 
     exit 1
 fi
+
 
 #receiving the values of Username, Password and NetworkID from config.json
 USERNAME=$(jq -r '.USERNAME'  ../config/config.json)
