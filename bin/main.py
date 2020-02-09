@@ -252,6 +252,8 @@ def find_current_min_gas_limit(interval, pre_min_gaslimit):
     accuracy = config["test_param"]["gasLimitAccuracy"]
     while not success:
         try:
+            if verbose_level >= VERBOSE_LEVEL_1:
+                print("Calculating minimum gas limit for block interval " + str(interval) + "s")
             run_file(
                 ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                  str(interval),
@@ -260,6 +262,9 @@ def find_current_min_gas_limit(interval, pre_min_gaslimit):
                       '--gaslimit',
                       str(pre_min_gaslimit)])
             success = True
+            if verbose_level >= VERBOSE_LEVEL_1:
+                print(
+                    "Minimum block gas limit for block interval " + str(interval) + "s found: " + str(pre_min_gaslimit))
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
             #    ['sh', _get_path('test.sh'),
@@ -452,7 +457,7 @@ if __name__ == '__main__':
         run_file(
             ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
              str(config['test_param']['maxInterval']),
-             str(config['test_param']['defaultGas']), str(gcp_setup),
+             str(config['test_param']['defaultGas']), '1',
              '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
             verbose=verbose_level == VERBOSE_LEVEL_2)
     except Exception as e:
