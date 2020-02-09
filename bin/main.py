@@ -13,9 +13,29 @@ CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 # 2: Print everything
 
 verbose_level = int(sys.argv[1])
+gcp_setup = int(sys.argv[2])
+
 VERBOSE_LEVEL_0 = 0
 VERBOSE_LEVEL_1 = 1
 VERBOSE_LEVEL_2 = 2
+ALLOWED_VERBOSE_LEVELS = (VERBOSE_LEVEL_0, VERBOSE_LEVEL_1, VERBOSE_LEVEL_2)
+
+if verbose_level not in ALLOWED_VERBOSE_LEVELS:
+    print('You can use only next verbose levels: {}'.format(
+        ', '.join(map(str, ALLOWED_VERBOSE_LEVELS)))
+    )
+    exit(1)
+
+GCP_SETUP_0 = 0
+GCP_SETUP_1 = 1
+ALLOWED_GCP_SETUP_LEVELS = (GCP_SETUP_0, GCP_SETUP_1)
+
+if gcp_setup not in ALLOWED_GCP_SETUP_LEVELS:
+    print('You can use only next GCP setup levels: {}'.format(
+        ', '.join(map(str, ALLOWED_GCP_SETUP_LEVELS)))
+    )
+    exit(1)
+
 
 ANALYZER_PATH = "analyzer/"
 SUT_PATH = "sut/"
@@ -66,19 +86,19 @@ def run_file(file_path, verbose=True):
 
         return_code = process.poll()
         if return_code is not None:
-            if return_code:
-                raise Exception(
-                    'File "{}" has not finished successfully'.format(
-                        file_path[1],
-                    )
-                )
-
             for output in process.stdout.readlines():
                 if verbose:
                     print(output.strip())
             for output in process.stderr.readlines():
                 if verbose:
                     print(output.strip())
+
+            if return_code:
+                raise Exception(
+                    'File "{}" has not finished successfully'.format(
+                        file_path[1],
+                    )
+                )
 
             break
 
@@ -105,11 +125,11 @@ def find_min_interval():
             if verbose_level >= VERBOSE_LEVEL_1:
                 print('Benchmarking to find minimum block interval value, current configuration ' + str(
                     interval) + ' seconds and ' +
-                    str(config['test_param']['defaultGas']) + ' gas limit.')
+                      str(config['test_param']['defaultGas']) + ' gas limit.')
                 print('Building SUT')
             run_file(
                 ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']), str(interval),
-                 str(config['test_param']['defaultGas']), '0',
+                 str(config['test_param']['defaultGas']), "0",
                  '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
                 verbose=verbose_level >= VERBOSE_LEVEL_2)
             if verbose_level >= VERBOSE_LEVEL_1:
@@ -155,7 +175,7 @@ def find_min_gas_limit(interval):
             run_file(
                 ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                  str(interval),
-                 str(upper_bound), '0', '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
+                 str(upper_bound), "0", '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
                 verbose=verbose_level == VERBOSE_LEVEL_2)
             if verbose_level >= VERBOSE_LEVEL_1:
                 print('SUT successfully built')
@@ -190,7 +210,7 @@ def find_min_gas_limit(interval):
             run_file(
                 ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                  str(interval),
-                 str(upper_bound), '0', '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
+                 str(upper_bound), "0", '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
                 verbose=verbose_level >= VERBOSE_LEVEL_2)
             if verbose_level >= VERBOSE_LEVEL_1:
                 print('SUT successfully built')
@@ -266,7 +286,7 @@ def find_optimal_parameters():
                 run_file(
                     ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
                      str(interval),
-                     str(gas), '0', '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
+                     str(gas), "0", '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
                     verbose=verbose_level >= VERBOSE_LEVEL_2)
                 if verbose_level >= VERBOSE_LEVEL_1:
                     print('SUT successfully built')
@@ -395,14 +415,19 @@ if __name__ == '__main__':
     run_file(['python', _get_path(BACKUP_PATH)], verbose=verbose_level == VERBOSE_LEVEL_2)
 
     # Building SUT for the first time
-    print('Building the SUT')
-    run_file(
-        ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
-         str(config['test_param']['maxInterval']),
-         str(config['test_param']['defaultGas']), '1',
-         '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
-        verbose=verbose_level >= VERBOSE_LEVEL_2)
+    print('Checking if the SUT needs to be built for the first time.')
+    try:
+        run_file(
+            ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+             str(config['test_param']['maxInterval']),
+             str(config['test_param']['defaultGas']), str(gcp_setup),
+             '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
+            verbose=verbose_level == VERBOSE_LEVEL_2)
+    except Exception as e:
+        print("Error executing Optibench tool. Ocurred an error when building the SUT.")
+        exit(-1)
     print('SUT successfully built')
+
     print('Starting calculation of optimal block interval and block gas limit for maximum throughput')
     result = find_optimal_parameters()
     print("Best result found: " + str(result))
