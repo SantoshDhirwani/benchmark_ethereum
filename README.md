@@ -33,7 +33,9 @@ Our goals were to achieve :
 │       ├── aggregate-html-reports.py
 │       ├── backup-old-results.py
 │       ├── calculate-optimal-values.py
+|	├── dashboard.html
 │       └── get-last-throughput
+|
 │── config
 │      └── config.json
 │
@@ -148,4 +150,6 @@ Takes for input the genesis file and bootnode (just paste address in the bootnod
 ### Sealer Node Image
 Takes for input the genesis file and bootnode (just add the address in the bootnode file) and start a mining node that could seal on the default port. It also generated the genesis file accordingly. As Sealers should be in the genesis.json.
 
+**Reports**
 
+To check final report of benchamarking open dashboard.html in folder bin/analyzer/aggregated-results

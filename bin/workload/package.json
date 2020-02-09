@@ -5,7 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "@hyperledger/caliper-cli": "^0.2.0",
-    "web3": "^1.2.0"
+    "web3": "^1.2.0",
+     "pm2": "^4.2.3"
   },
   "devDependencies": {},
   "scripts": {
