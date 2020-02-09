@@ -8,11 +8,11 @@
     "minGas": 2000000,
     "defaultGas": 10000000,
     "gasStep": 2000000,
-    "gasLimitAccuracy": 20000,
+    "gasLimitAccuracy": 10000,
     "maxInterval": 15,
     "minInterval": 1,
     "intervalStep": 1,
-    "numberTrials": 4,
+    "numberTrials": 10,
     "sensitivity": 0.05
   },
   "run_caliper": {
