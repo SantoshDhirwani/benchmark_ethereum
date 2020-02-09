@@ -158,7 +158,7 @@ def find_min_interval():
     return -1
 
 
-def find_min_gas_limit(interval):
+def find_initial_min_gas_limit(interval):
     upper_bound = config['test_param']['minGas']
     lower_bound = upper_bound
     if verbose_level >= VERBOSE_LEVEL_1:
@@ -247,6 +247,35 @@ def find_min_gas_limit(interval):
     return upper_bound
 
 
+def find_current_min_gas_limit(interval, pre_min_gaslimit):
+    success = False
+    accuracy = config["test_param"]["gasLimitAccuracy"]
+    while not success:
+        try:
+            if verbose_level >= VERBOSE_LEVEL_1:
+                print("Calculating minimum gas limit for block interval " + str(interval) + "s")
+            run_file(
+                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+                 str(interval),
+                 str(pre_min_gaslimit), '0'])
+            run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
+                      '--gaslimit',
+                      str(pre_min_gaslimit)])
+            success = True
+            if verbose_level >= VERBOSE_LEVEL_1:
+                print(
+                    "Minimum block gas limit for block interval " + str(interval) + "s found: " + str(pre_min_gaslimit))
+            # UNCOMMENT ONLY FOR TESTING PURPOSES
+            # run_file(
+            #    ['sh', _get_path('test.sh'),
+            #     str(config['test_param']['defaultInterval']), str(gas)])
+        except Exception as e:
+            print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
+                str(interval), str(pre_min_gaslimit), e))
+            pre_min_gaslimit += accuracy
+    return pre_min_gaslimit
+
+
 def find_optimal_parameters():
     results = {}
     peaks = []
@@ -261,6 +290,8 @@ def find_optimal_parameters():
         print("Tool execution failed.")
         exit(-1)
 
+    # Finding the minimum block gas limit
+
     optimal = False
 
     while not optimal:
@@ -268,11 +299,17 @@ def find_optimal_parameters():
             print("Performing benchmarks with block interval of " + str(interval) + " seconds.")
         results[interval] = {}
         stop_reached = False
-        # Finding the minimum block gas limit
-        gas = find_min_gas_limit(interval)
-        if gas < 0:
-            # failed to get minimum block gas limit for x interval. Stopping tool execution
-            stop_reached = True
+        if len(peaks) == 0:
+            minimum_gas_limit = find_initial_min_gas_limit(interval)
+            if minimum_gas_limit < 0:
+                # failed to get minimum block gas limit for x interval. Stopping tool execution
+                print("Failed get minimum gas limit.")
+                exit(-1)
+        else:
+            minimum_gas_limit = find_current_min_gas_limit(interval, minimum_gas_limit)
+
+        print("Minimum gas limit found: " + str(minimum_gas_limit))
+        gas = minimum_gas_limit
         tries = 0
         gaslimit_queue = queue.Queue()
         while not stop_reached:
