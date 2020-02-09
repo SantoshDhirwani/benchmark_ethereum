@@ -31,9 +31,9 @@ echo | gcloud -q compute instance-groups managed delete ${INSTANCE_GROUP_NAME} $
 echo | gcloud -q compute instances delete ${BOOT_NODE_NAME} ${GCLOUD_OUTPUT} || true
 echo
 INSTANCE_LIST=( $(gcloud compute instances list --sort-by ~NAME --filter="name~^${INSTANCE_GROUP_NAME}" --format='value(name)') )
-echo ---- CREATING ACCOUNTS ON NODES ----
+INSTANCE_ZONE_LIST=( $(gcloud compute instances list --sort-by ~NAME --filter="name~^${INSTANCE_GROUP_NAME}" --format='value(zone)') )
 for index in ${!INSTANCE_LIST[@]}; do
-    echo | gcloud -q compute instance-groups managed delete ${INSTANCE_LIST[index]} ${GCLOUD_OUTPUT} || true
+    echo | gcloud -q compute instances delete ${INSTANCE_LIST[index]} --zone ${INSTANCE_ZONE_LIST[index]} ${GCLOUD_OUTPUT} || true
 done
 echo
 echo PREVIOUS SETUP DELETED
@@ -54,16 +54,18 @@ then
     --base-instance-name ${INSTANCE_GROUP_NAME} \
     --size ${NUMBER_NODES} \
     --template ${INSTANCE_TEMPLATE}
+
     gcloud compute instance-groups managed set-autoscaling ${INSTANCE_GROUP_NAME} \
     --max-num-replicas=${NUMBER_NODES} \
     --min-num-replicas=${NUMBER_NODES}
 else
     echo multi-region setup activated
     NUMBER_NODES=$(echo ${REGIONS} | jq '. | length')
-    for (( index=0; index<=${NUMBER_NODES}; index++ ))
+    for (( index=0; index<${NUMBER_NODES}; index++ ))
     do
         NODE_ZONE=$(echo ${REGIONS} | jq -r '.['$index'].Zone')
-        gcloud compute instances create ${INSTANCE_GROUP_NAME}-${index} --source-instance-template ${INSTANCE_TEMPLATE} --zone ${NODE_ZONE}
+        gcloud compute instances create ${INSTANCE_GROUP_NAME}-${index} --source-instance-template ${INSTANCE_TEMPLATE}-${NODE_ZONE} --zone ${NODE_ZONE}
+        sleep 5
     done
 fi
 
@@ -92,16 +94,17 @@ echo THE BOOTNODE ENODE ADDRESS IS: ${BOOTNODE_ENODE}
 
 #prefix=$(gcloud compute instance-groups managed list --format='value(baseInstanceName)' --filter='name~^'${INSTANCE_GROUP_NAME}'')
 INSTANCE_LIST=( $(gcloud compute instances list --sort-by ~NAME --filter="name~^${INSTANCE_GROUP_NAME}" --format='value(name)') )
+INSTANCE_ZONE_LIST=( $(gcloud compute instances list --sort-by ~NAME --filter="name~^${INSTANCE_GROUP_NAME}" --format='value(zone)') )
 ACCOUNT_LIST=()
 
 # create accounts on nodes
 echo ---- CREATING ACCOUNTS ON NODES ----
 for index in ${!INSTANCE_LIST[@]}; do
     echo CREATING GETH ACCOUNT ON ${INSTANCE_LIST[index]}
-    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "rm -rf .ethereum" ${GCLOUD_OUTPUT}
-    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "killall geth || true" ${GCLOUD_OUTPUT}
-    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "echo ${PASSWORD} > password && geth --datadir .ethereum/ account new --password password" ${GCLOUD_OUTPUT}
-    ACCOUNT=$(gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ account list | cut -d "{" -f2 | cut -d "}" -f1")
+    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "rm -rf .ethereum" --zone ${INSTANCE_ZONE_LIST[index]} ${GCLOUD_OUTPUT}
+    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "killall geth || true" --zone ${INSTANCE_ZONE_LIST[index]} ${GCLOUD_OUTPUT}
+    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "echo ${PASSWORD} > password && geth --datadir .ethereum/ account new --password password" --zone ${INSTANCE_ZONE_LIST[index]} ${GCLOUD_OUTPUT}
+    ACCOUNT=$(gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --zone ${INSTANCE_ZONE_LIST[index]} --command "geth --nousb --datadir .ethereum/ account list | cut -d "{" -f2 | cut -d "}" -f1")
     ACCOUNT_LIST[index]=${ACCOUNT}
 done
 
@@ -128,14 +131,14 @@ jq -c ".gasLimit = \"0x${gaslimit}\"" genesis.json > tmp.$$.json && mv tmp.$$.js
 echo ---- CONFIGURING AND RUNNING GETH IN NODES ----
 for index in ${!INSTANCE_LIST[@]}; do
     echo GENESIS INIT ON ${INSTANCE_LIST[index]}
-    gcloud compute scp genesis.json ${USERNAME}@${INSTANCE_LIST[index]}:~/genesis.json ${GCLOUD_OUTPUT}
-    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ init genesis.json" ${GCLOUD_OUTPUT}
+    gcloud compute scp genesis.json ${USERNAME}@${INSTANCE_LIST[index]}:~/genesis.json --zone ${INSTANCE_ZONE_LIST[index]} ${GCLOUD_OUTPUT}
+    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ init genesis.json" --zone ${INSTANCE_ZONE_LIST[index]} ${GCLOUD_OUTPUT}
     echo
     echo GENESIS INITIALISED on ${INSTANCE_LIST[index]}
-    ACCOUNT=$(gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ account list | cut -d "{" -f2 | cut -d "}" -f1")
+    ACCOUNT=$(gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "geth --nousb --datadir .ethereum/ account list | cut -d "{" -f2 | cut -d "}" -f1" --zone ${INSTANCE_ZONE_LIST[index]})
     #start the node
-    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "nohup geth --datadir .ethereum/ --syncmode 'full' --port 30311 --rpc --rpcaddr '0.0.0.0' --rpcport 8501 --rpcapi 'personal,db,eth,net,web3,txpool,miner' --bootnodes \"${BOOTNODE_ENODE}\" --networkid ${NETWORK_ID} --gasprice '1' --unlock 0x${ACCOUNT} --password password --allow-insecure-unlock --nousb --mine --rpccorsdomain '*' --nat 'any' > /dev/null 2>&1 &"
-    GETH=$( gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "pgrep geth" ${GCLOUD_OUTPUT})
+    gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "nohup geth --datadir .ethereum/ --syncmode 'full' --port 30311 --rpc --rpcaddr '0.0.0.0' --rpcport 8501 --rpcapi 'personal,db,eth,net,web3,txpool,miner' --bootnodes \"${BOOTNODE_ENODE}\" --networkid ${NETWORK_ID} --gasprice '1' --unlock 0x${ACCOUNT} --password password --allow-insecure-unlock --nousb --mine --rpccorsdomain '*' --nat 'any' > /dev/null 2>&1 &" --zone ${INSTANCE_ZONE_LIST[index]}
+    GETH=$( gcloud compute ssh ${USERNAME}@${INSTANCE_LIST[index]} --command "pgrep geth" ${GCLOUD_OUTPUT} --zone ${INSTANCE_ZONE_LIST[index]})
     if [ X${GETH} == "X" ]
     then
         echo geth process is not running on nodes
