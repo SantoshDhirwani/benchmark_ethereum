@@ -2,11 +2,11 @@
 
 
 
-#A benchmarking-based approach to maximize throughput of the private Ethereum
+## A benchmarking-based approach to maximise throughput of the private Ethereum
 
 
 Our goals were to achieve :
-1) Performance Benchmarking. Benchmarking the performance of private Ethereum with Proof-of-Authority consensus  while maximizing throughput depending on block size and block interval. 
+1) Performance Benchmarking. Benchmarking the performance of private Ethereum with Proof-of-Authority consensus  while maximising throughput depending on block size and block interval.
 2) Automation. Scaling dynamically the SUT and to derive and present a few high-level guidelines reducing the complexity of implementing and running blockchain benchmarking performance, which would be valuable to developers and deployment engineers.
 
 
@@ -20,13 +20,13 @@ Our goals were to achieve :
 │   │   ├── deploy-sut.sh
 │   │   ├── startup-script.sh
 │   │   └──create-template.sh
-│   │   
+│   │  
 │   ├── workload
 │   │   ├── caliper-config
 │   │   ├── caliper-reports
 │   │   ├── run-caliper.py
 │   │   └── run-caliper.sh
-│   │   
+│   │  
 │   └── analyzer
 │       ├── old
 │       ├── aggregated-results
@@ -60,8 +60,8 @@ Our goals were to achieve :
 │
 │──  documentation
 └──README.md
-      
-         
+
+
 ```
 
 
@@ -88,19 +88,22 @@ Puppeth
 jq-command
 npm (Node.js)
 Caliper
- 
 
-Note: If you have jq,npm, geth, puppeth and gcloud not installed, you will be provided with the links to follow the easy steps of installing them. This script does not provide their installation, because each user have different OS, and you need to download and install the packages depending on the enviroment you are working from.
+
+Note: If you have jq,npm, geth, puppeth and gcloud not installed, you will be provided with the links to follow the easy steps of installing them. This script does not provide their installation, because each user have different OS, and you need to download and install the packages depending on the environment you are working from.
 
 
 ## Starting the tool
 
 cd cp_ws_1920/bin
 
-python main.py
+python3 main.py (argument-1) (argument-2)
 
+Argument-1 is the verbose levels. We have defined 3 verbose levels: 0,1 and 2, where '0' will print only the result, '1' will print the execution steps and '2' will print everything (recommended for debugging).
 
-## Config (TO-Be-Discussed)
+Argument-2 is related to the Google Cloud project setup. The possible values are 0 and 1, where '0' will use the existing setup after verifying it and '1' will clean the existing setup and create a new Google Cloud project setup.
+
+## Config
 
 config.json has its objects read by the scripts main.py , deploy-sut.sh , create-template.sh and run-caliper.py .
 
@@ -115,7 +118,7 @@ Network_ID to verify the network we are setting the nodes.
 
 
 **The values of "test_param" are all needed to run the main.py.**
- 
+
 "maxGas" sets the maximal gas limit. Our tool aims to set a range for the minimal and maximal gas limit, where depending on the block interval range we give the optimal throughput to the user.
 
 "defaultGas" we set the default gas to make the mining possible, and define the range of min-max block interval
@@ -125,12 +128,12 @@ Network_ID to verify the network we are setting the nodes.
 "maxInterval" sets the maximal block interval. Our tool aims to set a range for the minimal and maximal block interval, where depending on the gas limit range we give the optimal throughput to the user.
 
 "intervalStep" we add it with the default block  interval needed to create new block intervals until we find the minimum block interval.
-	
+
 **"run_caliper" is read by run-caliper.py.**
 "attempt" sets the max attempts to run caliper.
-		
-		
-		
+
+
+
 ## Documentation
 This file serves the user to have a more in depth-learning of this tool and how it was organised and developed by the team.
 
