@@ -82,12 +82,12 @@ else
     do
         NODE_ZONE=$(echo ${REGIONS} | jq -r '.['$index'].Zone')
         gcloud compute instances create ${INSTANCE_GROUP_NAME}-${index} --source-instance-template ${INSTANCE_TEMPLATE}-${NODE_ZONE} --zone ${NODE_ZONE}
-        sleep 5
+        sleep 20
     done
 fi
 
-echo SLEEPING FOR 30 SECONDS TO MAKE SURE INSTANCES ARE UP!
-sleep 30
+echo SLEEPING FOR 60 SECONDS TO MAKE SURE INSTANCES ARE UP!
+sleep 60
 fi
 
 IP_BOOTNODE=$(gcloud compute instances list --filter="name~${BOOT_NODE_NAME}" --format='value(INTERNAL_IP)')
