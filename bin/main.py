@@ -3,6 +3,7 @@ import os
 import json
 import subprocess
 import queue
+import sys
 import time
 
 CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
