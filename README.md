@@ -81,7 +81,9 @@ The script checks if the needed dependencies are installed or how to install the
 
 
 **Dependency**
-Python 3 libraries : pandas, lxml, matplotlib, numpy, web3: 1.2.6 , pm2: 4.2.3
+Python 3 libraries : pandas, lxml, matplotlib, numpy
+web3: 1.2.6 (it works from 1.2.0 version)
+pm2: 4.2.3
 Google SDK
 Geth
 Puppeth
