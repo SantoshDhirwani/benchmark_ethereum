@@ -95,9 +95,9 @@ Note: If you have jq,npm, geth, puppeth and gcloud not installed, you will be pr
 
 ## Starting the tool
 
-cd cp_ws_1920/bin
+`cd cp_ws_1920/bin`
 
-`python main.py (argument-1) (argument-2)``
+`python main.py (argument-1) (argument-2)`
 
 Argument-1 is the verbose levels. We have defined 3 verbose levels: 0,1 and 2, where '0' will print only the result, '1' will print the execution steps and '2' will print everything (recommended for debugging).
 
@@ -145,9 +145,9 @@ config.json is where the user configuration parameters are written.
 - "attempt" sets the max attempts to run caliper in our case.
 
 **Under "eth_config" we have Ethereum sut configuration.**
-- username used to access via SSH to the VMs.
-- password used to access via SSH to the VMs.
-- network_id the network id used to configure the Ethereum network.
+- "username" used to access via SSH to the VMs.
+- "password used" to access via SSH to the VMs.
+- "network_id" the network id used to configure the Ethereum network.
 
 ## Documentation
 This file serves the user to have a more in depth-learning of this tool and how it was organised and developed by the team.
