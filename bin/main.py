@@ -486,4 +486,6 @@ if __name__ == '__main__':
               "--gaslimit", gaslimit, "--throughput", str(throughput), "--executiontime", str(exec_time)],
              verbose=verbose_level >= VERBOSE_LEVEL_2)
     print("Execution time: " + str(exec_time))
+    print(
+        "End of tool execution, please check the dashboard generated under /bin/analyzer/aggregated-results/dashboard.html.")
     exit(0)
