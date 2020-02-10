@@ -31,7 +31,7 @@ def load_args():
 
 
 def update_json(filename, args):
-    config = open('workload_config.conf', 'r')
+    config = open('run_caliper.conf', 'r')
     instance = config.readline()
     config.close()
     with open(filename, 'r') as read_file:
