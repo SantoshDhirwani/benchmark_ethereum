@@ -24,10 +24,6 @@ def load_config(path):
 
 def load_args():
     parser = argparse.ArgumentParser(description="This script is for running caliper benchmark")
-    # parser.add_argument("--ipaddress", help="IP Address of the node SUT", required=True)
-    # parser.add_argument("--port", help="Used port", required=True)
-    # parser.add_argument("--account", help="The account of the node", required=True)
-    # parser.add_argument("--password", help="Password for the account", required=True)
     parser.add_argument("--interval", help="Block interval", required=True)
     parser.add_argument("--gaslimit", help="Block gas limit", required=True)
 
@@ -35,7 +31,7 @@ def load_args():
 
 
 def update_json(filename, args):
-    config = open('run_caliper.conf', 'r')
+    config = open('workload_config.conf', 'r')
     instance = config.readline()
     config.close()
     with open(filename, 'r') as read_file:
@@ -65,7 +61,7 @@ def main():
 
     # run the caliper
     config_general = load_config(CONFIG_PATH)
-    attempt = config_general['run_caliper']['attempt']
+    attempt = config_general['workload_config']['attempt']
     bashfile = "workload/run-caliper.sh"
     reportname = config.interval + "seconds-" + config.gaslimit + ".html"
     # running in number of attempts if it's failing (attempts variable getting from config)
