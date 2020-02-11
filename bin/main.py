@@ -1,40 +1,23 @@
 from __future__ import print_function
 import os
-import sys
 import json
 import subprocess
 import queue
 import time
+import argparse
+
 
 CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 # 0: Print only the final step of aggregating results
 # 1: Print content related to SUT and benchmarking
 # 2: Print everything
-
-verbose_level = int(sys.argv[1])
-gcp_setup = int(sys.argv[2])
-
+verbose_level = 0
 VERBOSE_LEVEL_0 = 0
 VERBOSE_LEVEL_1 = 1
 VERBOSE_LEVEL_2 = 2
 ALLOWED_VERBOSE_LEVELS = (VERBOSE_LEVEL_0, VERBOSE_LEVEL_1, VERBOSE_LEVEL_2)
 
-if verbose_level not in ALLOWED_VERBOSE_LEVELS:
-    print('You can use only next verbose levels: {}'.format(
-        ', '.join(map(str, ALLOWED_VERBOSE_LEVELS)))
-    )
-    exit(1)
-
-GCP_SETUP_0 = 0
-GCP_SETUP_1 = 1
-ALLOWED_GCP_SETUP_LEVELS = (GCP_SETUP_0, GCP_SETUP_1)
-
-if gcp_setup not in ALLOWED_GCP_SETUP_LEVELS:
-    print('You can use only next GCP setup levels: {}'.format(
-        ', '.join(map(str, ALLOWED_GCP_SETUP_LEVELS)))
-    )
-    exit(1)
 
 ANALYZER_PATH = "analyzer/"
 SUT_PATH = "sut/"
@@ -44,6 +27,7 @@ RUN_WORKLOAD_PATH = WORKLOAD_PATH + "run-caliper.py"
 AGGREGATE_RESULTS_PATH = ANALYZER_PATH + "aggregate-html-reports.py"
 GET_LAST_RESULT_PATH = ANALYZER_PATH + "get-last-throughput.py"
 BACKUP_PATH = ANALYZER_PATH + "backup-old-results.py"
+MONITOR_PATH= ANALYZER_PATH + "monitor.sh"
 
 
 def _get_path(filename):
@@ -51,6 +35,15 @@ def _get_path(filename):
 
 
 CONFIG_PATH = os.path.join(_get_path('../config'), 'config.json')
+
+
+def load_args():
+    parser = argparse.ArgumentParser(description="This script executes Optibench tool")
+    parser.add_argument("--verbose", help="The verbose level can be 0, 1 or 2", type=int, default=0)
+    parser.add_argument("--monitor", help="Enables Ethstats monitoring over the SUT", action='store_true')
+    parser.add_argument("--notbuildsut",  help="Disables the sut infrastructure building", action='store_true')
+
+    return parser.parse_args()
 
 
 def load_config(path):
@@ -455,9 +448,23 @@ def find_optimal_parameters():
 if __name__ == '__main__':
     print('Starting tool execution')
     start_time = time.time()
+    args = load_args()
+    verbose_level = args.verbose
+    sut_build = args.notbuildsut
+    monitor = args.monitor
+    if verbose_level not in ALLOWED_VERBOSE_LEVELS:
+        print('You can use only next verbose levels: {}'.format(
+            ', '.join(map(str, ALLOWED_VERBOSE_LEVELS)))
+        )
+        exit(1)
     # Backing up old results
     run_file(['python', _get_path(BACKUP_PATH)], verbose=verbose_level == VERBOSE_LEVEL_2)
-
+    #FLAG TO MONITOR SUT COMMENTED
+    #if monitor:
+    #   execute monitor.sh
+    # FLAG TO NOT BUILD GCP COMMENTED
+    #if sut_build:
+    #    build = 0
     # Building SUT for the first time
     print('Checking if the SUT infrastructure needs to be built.')
     try:

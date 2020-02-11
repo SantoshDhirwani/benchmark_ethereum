@@ -82,26 +82,30 @@ The script checks if the needed dependencies are installed or how to install the
 
 **Dependency**
 Python 3 libraries : pandas, lxml, matplotlib, numpy
+web3: 1.2.6 (it works from 1.2.0 version)
+pm2: 4.2.3
 Google SDK
 Geth
 Puppeth
-jq-command
-npm (Node.js)
-Caliper
-
+jq-command : https://stedolan.github.io/jq/
+npm (Node.js) : https://nodejs.org/en/download/ - to run caliper a bigger version than Node.js v8.X LTS  is needed
+Caliper : https://hyperledger.github.io/caliper/vLatest/installing-caliper/
 
 Note: If you have jq,npm, geth, puppeth and gcloud not installed, you will be provided with the links to follow the easy steps of installing them. This script does not provide their installation, because each user have different OS, and you need to download and install the packages depending on the environment you are working from.
 
 
-## Starting the tool
+## Executing the tool
 
 `cd cp_ws_1920/bin`
 
-`python main.py (argument-1) (argument-2)`
+`python main.py`
 
-Argument-1 is the verbose levels. We have defined 3 verbose levels: 0,1 and 2, where '0' will print only the result, '1' will print the execution steps and '2' will print everything (recommended for debugging).
+**Flags**
+`--verbose` is the verbose levels. We have defined 3 verbose levels: 0,1 and 2, where '0' will print only the result, '1' will print the execution steps and '2' will print everything (recommended for debugging).
 
-Argument-2 is related to the Google Cloud project setup. The possible values are 0 and 1, where '0' will use the existing setup after verifying it and '1' will clean the existing setup and create a new Google Cloud project setup.
+`--notbuildsut` when enabled the sut will not be built (or rebuilt) Google Cloud project setup.
+
+`--monitor` enables ethstats monitoring
 
 **Reports**
 
