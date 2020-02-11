@@ -22,13 +22,18 @@ fi
 #Install and initialize the Cloud SDK using this link https://cloud.google.com/sdk/docs/?hl=de and install docker with this link https://docs.docker.com/install/linux/docker-ce/ubuntu/
 
 if hash "gcloud" 2>/dev/null; then
-  echo 'Google cloud SDK is installed. Please wait a few seconds..'
-  echo 'Please make sure you already login to your gcloud account. You can run this command `gcloud auth login` Follow the link to log in !'
-  # gcloud auth login
-  echo " We will process.."
-
+ echo 'Google cloud SDK is installed. Please wait a few seconds..'
+ OUTPUT=$(gcloud config list account --format "value(core.account)")
+ if [ "$OUTPUT" = "" ]; then
+   echo 'Follow the link to log in please!'
+ gcloud auth login
+ echo " We will process.."
+ else
+   echo 'logged in with '
+   echo "$OUTPUT"
+ fi
 else
-  CHECK=false
+ CHECK=false;
   echo 'Google cloud SDK is not installed. Please follow the instructions here: https://cloud.google.com/sdk/install'
 fi
 
