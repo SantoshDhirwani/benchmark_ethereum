@@ -20,15 +20,15 @@ then
   exit 1
 fi
 
-#RUNNING_VMS=$(gcloud compute instances list --filter="running AND name~${BOOT_NODE_NAME}"|wc -l|sed 's/ //g')
-#if [[ ${NEW_SETUP} == '0' && ${RUNNING_VMS} != ${NUMBER_NODES} ]]
-#then
-#    printf 'The number of nodes and VMs are not equal, please check your existing Google cloud setup and the config file. '
-#    echo "Number of running VMs: ${RUNNING_VMS}"
-#    echo "Number of nodes configured: ${NUMBER_NODES}"
-#
-#    exit 1
-#fi
+RUNNING_VMS=$(gcloud compute instances list --filter="running AND name~${BOOT_NODE_NAME}"|wc -l|sed 's/ //g')
+if [[ ${NEW_SETUP} == '0' && ${RUNNING_VMS} != ${NUMBER_NODES} ]]
+then
+    printf 'The number of nodes and VMs are not equal, please check your existing Google cloud setup and the config file. '
+    echo "Number of running VMs: ${RUNNING_VMS}"
+    echo "Number of nodes configured: ${NUMBER_NODES}"
+
+    exit 1
+fi
 
 
 #receiving the values of Username, Password and NetworkID from config.json

@@ -457,7 +457,7 @@ if __name__ == '__main__':
         run_file(
             ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
              str(config['test_param']['maxInterval']),
-             str(config['test_param']['defaultGas']), '1',
+             str(config['test_param']['defaultGas']), str(gcp_setup),
              '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
             verbose=verbose_level == VERBOSE_LEVEL_2)
     except Exception as e:
