@@ -70,14 +70,14 @@ Our goals were to achieve :
 
 Get a copy of the project and run it up on your local machine for development and testing purposes.
 
-git clone https://github.com/Cloud-Prototyping-WS-2019-20/cp_ws_1920.git
+`git clone https://github.com/Cloud-Prototyping-WS-2019-20/cp_ws_1920.git`
 
 
 ## Prerequisites
 
 The script checks if the needed dependencies are installed or how to install them. It also runs the script  create-template.sh  to create VM templates.
 
-**Run:**  sh prerequisites.sh
+**Run:**  `sh prerequisites.sh`
 
 
 **Dependency**
@@ -96,44 +96,59 @@ Note: If you have jq,npm, geth, puppeth and gcloud not installed, you will be pr
 
 ## Starting the tool
 
-cd cp_ws_1920/bin
+`cd cp_ws_1920/bin`
 
-python3 main.py (argument-1) (argument-2)
+`python main.py (argument-1) (argument-2)`
 
 Argument-1 is the verbose levels. We have defined 3 verbose levels: 0,1 and 2, where '0' will print only the result, '1' will print the execution steps and '2' will print everything (recommended for debugging).
 
 Argument-2 is related to the Google Cloud project setup. The possible values are 0 and 1, where '0' will use the existing setup after verifying it and '1' will clean the existing setup and create a new Google Cloud project setup.
 
+**Reports**
+
+To check final report of benchmarking open dashboard.html in folder bin/analyzer/aggregated-results
+
 ## Config
 
-config.json has its objects read by the scripts main.py , deploy-sut.sh , create-template.sh and run-caliper.py .
+config.json is where the user configuration parameters are written.
 
-USERNAME is needed for the authentication when computing ssh.
-PASSWORD is needed for the authentication as well, when new accounts on nodes are created.
-Network_ID to verify the network we are setting the nodes.
+**The values of "tool_config" are all needed to run the main.py.**
 
-**Under "eth_param" we have:**
+- "maxGas" sets the maximal block gas limit value. If this value is reached by our tool when trying to find the minimum block gas limit, it will stop and throw an error.
 
-"templateName", which names the VM instances when they are created. It will be called by bin/sut/create-template.sh
-"nodeNumber", when building SUT for the first time, we need at least 2 nodes to set-up private Ethereum on Google Cloud Platform
+- "minGas" sets the minimum block gas limit value with which the tool starts benchmarking.
 
+- "defaultGas" sets a working block gas limit value with which our tool will benchmark to find the minimum block interval.
 
-**The values of "test_param" are all needed to run the main.py.**
+- "gasStep" the block gas limit step difference of the tool. It will be added to the last block gas limit value benchmarked.
 
-"maxGas" sets the maximal gas limit. Our tool aims to set a range for the minimal and maximal gas limit, where depending on the block interval range we give the optimal throughput to the user.
+- "gasLimitAccuracy" the maximum difference value between the lower bound and upper bound block gas limit values when searching for the minimum block gas limit of a given block interval.
 
-"defaultGas" we set the default gas to make the mining possible, and define the range of min-max block interval
+- "maxInterval" the maximum block interval value. When our tool is searching for the minimum block interval value stops and throws an error if this configuration value is reached
 
-"gasStep" we add it with the default gas limit we set to search until we find the best minimal value of gas limit, which is needed to do the transactions in the block.
+- "minInterval" the maximum block interval value with which our tool will start benchmarking to find the minimum block interval value.
 
-"maxInterval" sets the maximal block interval. Our tool aims to set a range for the minimal and maximal block interval, where depending on the gas limit range we give the optimal throughput to the user.
+- "intervalStep" the block interval step difference of the tool. It will be added to the last block interval value benchmarked.
 
-"intervalStep" we add it with the default block  interval needed to create new block intervals until we find the minimum block interval.
+- "numberTrials" the minimum number of successful benchmarks needed to find a peak.
 
-**"run_caliper" is read by run-caliper.py.**
-"attempt" sets the max attempts to run caliper.
+- "sensitivity" percentage value of the minimum improvement difference between successful benchmarks accepted by the user. If an improvement of less percentage than the configured is obtained, the tool will stop the execution and assume that the throughput value is stale.
 
+**Under "sut_config" we have parameters needed to build the SUT:**
 
+- "templateName", is the name of the template that will be used to create the VM instances of the SUT.
+
+- "nodeNumber", the number of nodes to build the SUT and to deploy a private Ethereum network on Google Cloud Platform. The SUT infrastructure will be deployed in the default region of the user configured in Google SDK.
+
+- "nodes", a configuration array of nodes to build a multi-region SUT. Each node must have a Region and a Zone. If this configuration is present, the tool will ignore the "nodeNumber" value.
+
+**Under"workload_config" we have .**
+- "attempt" sets the max attempts to run caliper in our case.
+
+**Under "eth_config" we have Ethereum sut configuration.**
+- "username" used to access via SSH to the VMs.
+- "password used" to access via SSH to the VMs.
+- "network_id" the network id used to configure the Ethereum network.
 
 ## Documentation
 This file serves the user to have a more in depth-learning of this tool and how it was organised and developed by the team.
@@ -153,7 +168,3 @@ Takes for input the genesis file and bootnode (just paste address in the bootnod
 
 ### Sealer Node Image
 Takes for input the genesis file and bootnode (just add the address in the bootnode file) and start a mining node that could seal on the default port. It also generated the genesis file accordingly. As Sealers should be in the genesis.json.
-
-**Reports**
-
-To check final report of benchamarking open dashboard.html in folder bin/analyzer/aggregated-results
