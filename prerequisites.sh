@@ -99,6 +99,14 @@ else
     echo 'matplotlib is installed'
 fi
 
+if python -c 'import pkgutil; exit(not pkgutil.find_loader("plotly"))'; then
+  echo 'plotly is found'
+else
+  echo 'plotly is not found. We will install it now.'
+  pip install plotly
+  echo 'plotly is installed'
+fi
+
 if python -c 'import pkgutil; exit(not pkgutil.find_loader("numpy"))'; then
     echo 'numpy is found'
 else

@@ -20,5 +20,19 @@
   },
   "USERNAME": "cloudproto",
   "PASSWORD": "cloudproto",
-  "NETWORK_ID": 123
+  "NETWORK_ID": 123,
+  "Nodes": [
+    {
+      "Region": "europe-west1",
+      "Zone": "europe-west1-b"
+    },
+    {
+      "Region": "us-east1",
+      "Zone": "us-east1-b"
+    },
+    {
+      "Region": "asia-east1",
+      "Zone": "asia-east1-b"
+    }
+  ]
 }
