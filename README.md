@@ -16,24 +16,25 @@ Our goals were to achieve :
 ├── bin
 │   ├── main.py
 │   ├── sut
-│   │   ├── automated-genesis
 │   │   ├── deploy-sut.sh
 │   │   ├── startup-script.sh
-│   │   └──create-template.sh
+│   │   ├── create-template-multi-region.sh
+│   │   └── create-template.sh
 │   │  
 │   ├── workload
-│   │   ├── caliper-config
-│   │   ├── caliper-reports
+│   │   ├── caliper-config/
+│   │   ├── caliper-reports/
 │   │   ├── run-caliper.py
 │   │   └── run-caliper.sh
 │   │  
 │   └── analyzer
-│       ├── old
-│       ├── aggregated-results
+│       ├── old/
+│       ├── aggregated-results/
 │       ├── aggregate-html-reports.py
 │       ├── backup-old-results.py
 │       ├── calculate-optimal-values.py
-|	├── dashboard.html
+|	    ├── dashboard.html
+|	    ├── monitor.sh
 │       └── get-last-throughput
 |
 │── config
@@ -101,6 +102,7 @@ Note: If you have jq,npm, geth, puppeth and gcloud not installed, you will be pr
 `python main.py`
 
 **Flags**
+
 `--verbose` is the verbose levels. We have defined 3 verbose levels: 0,1 and 2, where '0' will print only the result, '1' will print the execution steps and '2' will print everything (recommended for debugging).
 
 `--notbuildsut` when enabled the sut will not be built (or rebuilt) Google Cloud project setup.
