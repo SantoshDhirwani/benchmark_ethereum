@@ -16,10 +16,9 @@ Our goals were to achieve :
 ├── bin
 │   ├── main.py
 │   ├── sut
-│   │   ├── automated-genesis
 │   │   ├── deploy-sut.sh
 │   │   ├── startup-script.sh
-│   │   └──create-template.sh
+│   │   └── create-template.sh
 │   │  
 │   ├── workload
 │   │   ├── caliper-config
@@ -32,8 +31,7 @@ Our goals were to achieve :
 │       ├── aggregated-results
 │       ├── aggregate-html-reports.py
 │       ├── backup-old-results.py
-│       ├── calculate-optimal-values.py
-|	├── dashboard.html
+|	    ├── dashboard.html
 │       └── get-last-throughput
 |
 │── config
