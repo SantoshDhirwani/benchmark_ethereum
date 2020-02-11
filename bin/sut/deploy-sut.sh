@@ -12,7 +12,7 @@ GCLOUD_OUTPUT=${5}
 
 INSTANCE_GROUP_NAME=ethereum-sut-group
 BOOT_NODE_NAME=bootnode
-INSTANCE_TEMPLATE=$(jq -r '.eth_param.templateName'  ../config/config.json)
+INSTANCE_TEMPLATE=$(jq -r '.sut_config.templateName'  ../config/config.json)
 
 if [ ${NEW_SETUP} != '0' ] && [ ${NEW_SETUP} != '1' ]
 then
@@ -32,10 +32,10 @@ fi
 
 
 #receiving the values of Username, Password and NetworkID from config.json
-USERNAME=$(jq -r '.USERNAME'  ../config/config.json)
-PASSWORD=$(jq -r '.PASSWORD'  ../config/config.json)
-NETWORK_ID=$(jq -r '.NETWORK_ID'  ../config/config.json)
-REGIONS=$(jq -r '.Nodes'  ../config/config.json)
+USERNAME=$(jq -r '.eth_config.username'  ../config/config.json)
+PASSWORD=$(jq -r '.eth_config.password'  ../config/config.json)
+NETWORK_ID=$(jq -r '.eth_config.network_id'  ../config/config.json)
+REGIONS=$(jq -r '.sut_config.nodes'  ../config/config.json)
 
 
 # clean previous sut

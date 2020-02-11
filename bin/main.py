@@ -110,39 +110,39 @@ def get_last_tps(interval, gaslimit):
 
 def find_min_interval():
     intervals = range(1,
-                      config['test_param']['maxInterval'] + config['test_param']['intervalStep'],
-                      config['test_param']['intervalStep'])
+                      config['tool_config']['maxInterval'] + config['tool_config']['intervalStep'],
+                      config['tool_config']['intervalStep'])
     for interval in intervals:
         try:
             if verbose_level >= VERBOSE_LEVEL_1:
                 print('Benchmarking to find minimum block interval value, current configuration ' + str(
                     interval) + ' seconds and ' +
-                      str(config['test_param']['defaultGas']) + ' gas limit.')
-                print('Building SUT')
+                      str(config['tool_config']['defaultGas']) + ' gas limit.')
+                print('Deploying SUT')
             run_file(
-                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']), str(interval),
-                 str(config['test_param']['defaultGas']), "0",
+                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['sut_config']['nodeNumber']), str(interval),
+                 str(config['tool_config']['defaultGas']), "0",
                  '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
                 verbose=verbose_level >= VERBOSE_LEVEL_2)
             if verbose_level >= VERBOSE_LEVEL_1:
-                print('SUT successfully built')
+                print('SUT successfully deployed')
                 print('Executing the workload')
             run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval), '--gaslimit',
-                      str(config['test_param']['defaultGas'])],
+                      str(config['tool_config']['defaultGas'])],
                      verbose=verbose_level == VERBOSE_LEVEL_2)
             if verbose_level >= VERBOSE_LEVEL_1:
                 print('Workload executed')
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
             #    ['sh', _get_path('test.sh'), str(interval),
-            #     str(config['test_param']['defaultGas'])])
+            #     str(config['tool_config']['defaultGas'])])
             if verbose_level >= VERBOSE_LEVEL_1:
                 print('Minimum block interval found! ' + str(interval) + ' seconds.')
             return interval
         except Exception as e:
             if verbose_level >= VERBOSE_LEVEL_1:
                 print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
-                    str(interval), str(config['test_param']['defaultGas']), e))
+                    str(interval), str(config['tool_config']['defaultGas']), e))
 
     print(
         'Minimum block interval not found. Check again your setup or '
@@ -151,7 +151,7 @@ def find_min_interval():
 
 
 def find_initial_min_gas_limit(interval):
-    upper_bound = config['test_param']['minGas']
+    upper_bound = config['tool_config']['minGas']
     lower_bound = upper_bound
     if verbose_level >= VERBOSE_LEVEL_1:
         print("Benchmarking to find minimum block gas limit value for block interval dimension of " + str(
@@ -163,14 +163,14 @@ def find_initial_min_gas_limit(interval):
                 print(
                     "Benchmarking with block interval of " + str(interval) + " seconds and " + str(
                         upper_bound) + " gas limit.")
-                print('Building SUT')
+                print('Deploying SUT')
             run_file(
-                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['sut_config']['nodeNumber']),
                  str(interval),
                  str(upper_bound), "0", '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
                 verbose=verbose_level == VERBOSE_LEVEL_2)
             if verbose_level >= VERBOSE_LEVEL_1:
-                print('SUT successfully built')
+                print('SUT successfully deployed')
                 print('Executing the workload')
             run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
                       '--gaslimit',
@@ -190,7 +190,7 @@ def find_initial_min_gas_limit(interval):
     upper_bound = int((upper_bound + lower_bound) / 2)
     if verbose_level >= VERBOSE_LEVEL_1:
         print("A working gas limit upper bound has been found: " + str(upper_bound))
-    accuracy = config["test_param"]["gasLimitAccuracy"]
+    accuracy = config["tool_config"]["gasLimitAccuracy"]
 
     # Benchmarking upper bound
     while True:
@@ -198,14 +198,14 @@ def find_initial_min_gas_limit(interval):
             if verbose_level >= VERBOSE_LEVEL_1:
                 print("Benchmarking with " + str(upper_bound) + " upper bound and " + str(
                     lower_bound) + " lower bound to find the minimum gas limit")
-                print('Building SUT')
+                print('Deploying SUT')
             run_file(
-                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['sut_config']['nodeNumber']),
                  str(interval),
                  str(upper_bound), "0", '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
                 verbose=verbose_level >= VERBOSE_LEVEL_2)
             if verbose_level >= VERBOSE_LEVEL_1:
-                print('SUT successfully built')
+                print('SUT successfully deployed')
                 print('Executing the workload')
             run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
                       '--gaslimit', str(upper_bound)], verbose=verbose_level >= VERBOSE_LEVEL_2)
@@ -214,7 +214,7 @@ def find_initial_min_gas_limit(interval):
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
             #    ['sh', _get_path('test.sh'),
-            #     str(config['test_param']['defaultInterval']), str(gas)])
+            #     str(config['tool_config']['defaultInterval']), str(gas)])
 
             if verbose_level >= VERBOSE_LEVEL_1:
                 print('Calculating if the gas limit is under accuracy bounds')
@@ -241,18 +241,25 @@ def find_initial_min_gas_limit(interval):
 
 def find_current_min_gas_limit(interval, pre_min_gaslimit):
     success = False
-    accuracy = config["test_param"]["gasLimitAccuracy"]
+    accuracy = config["tool_config"]["gasLimitAccuracy"]
     while not success:
         try:
             if verbose_level >= VERBOSE_LEVEL_1:
                 print("Calculating minimum gas limit for block interval " + str(interval) + "s")
+                print("Deploying SUT")
             run_file(
-                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+                ['bash', _get_path(DEPLOY_SUT_PATH), str(config['sut_config']['nodeNumber']),
                  str(interval),
-                 str(pre_min_gaslimit), '0'])
+                 str(pre_min_gaslimit), '0', '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
+                verbose=verbose_level >= VERBOSE_LEVEL_2)
+            if verbose_level >= VERBOSE_LEVEL_1:
+                print('SUT successfully deployed')
+                print('Executing the workload')
             run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
                       '--gaslimit',
-                      str(pre_min_gaslimit)])
+                      str(pre_min_gaslimit)], verbose=verbose_level >= VERBOSE_LEVEL_2)
+            if verbose_level >= VERBOSE_LEVEL_1:
+                print('Workload executed')
             success = True
             if verbose_level >= VERBOSE_LEVEL_1:
                 print(
@@ -260,7 +267,7 @@ def find_current_min_gas_limit(interval, pre_min_gaslimit):
             # UNCOMMENT ONLY FOR TESTING PURPOSES
             # run_file(
             #    ['sh', _get_path('test.sh'),
-            #     str(config['test_param']['defaultInterval']), str(gas)])
+            #     str(config['tool_config']['defaultInterval']), str(gas)])
         except Exception as e:
             print('Failed execution with configuration %s seconds and %s gas limit. Reason: %s' % (
                 str(interval), str(pre_min_gaslimit), e))
@@ -272,10 +279,10 @@ def find_optimal_parameters():
     results = {}
     peaks = []
     interval_queue = queue.Queue()
-    trials = config["test_param"]["numberTrials"]
-    sensitivity = config["test_param"]["sensitivity"]
-    gas_step = config["test_param"]["gasStep"]
-    interval_step = config["test_param"]["intervalStep"]
+    trials = config["tool_config"]["numberTrials"]
+    sensitivity = config["tool_config"]["sensitivity"]
+    gas_step = config["tool_config"]["gasStep"]
+    interval_step = config["tool_config"]["intervalStep"]
     # obtaining minimum block interval
     interval = find_min_interval()
     if interval < 0:
@@ -311,14 +318,14 @@ def find_optimal_parameters():
             # benchmarking with block interval x and block gas limit y
             try:
                 if verbose_level >= VERBOSE_LEVEL_1:
-                    print('Building SUT')
+                    print('Deploying SUT')
                 run_file(
-                    ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
+                    ['bash', _get_path(DEPLOY_SUT_PATH), str(config['sut_config']['nodeNumber']),
                      str(interval),
                      str(gas), "0", '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
                     verbose=verbose_level >= VERBOSE_LEVEL_2)
                 if verbose_level >= VERBOSE_LEVEL_1:
-                    print('SUT successfully built')
+                    print('SUT successfully deployed')
                     print('Executing the workload')
                 run_file(['python', _get_path(RUN_WORKLOAD_PATH), '--interval', str(interval),
                           '--gaslimit', str(gas)], verbose=verbose_level >= VERBOSE_LEVEL_2)
@@ -327,7 +334,7 @@ def find_optimal_parameters():
                 # UNCOMMENT ONLY FOR TESTING PURPOSES
                 # run_file(
                 #    ['sh', _get_path('test.sh'),
-                #     str(config['test_param']['defaultInterval']), str(gas)])
+                #     str(config['tool_config']['defaultInterval']), str(gas)])
                 if verbose_level >= VERBOSE_LEVEL_1:
                     print('Obtaining peak and checking to continue or not')
                 last_tps = get_last_tps(interval, gas)
@@ -351,11 +358,12 @@ def find_optimal_parameters():
                         # yes
                         stop_reached = True
                         if verbose_level >= VERBOSE_LEVEL_1:
-                            print("Improvement less than the sensitivity given, last feasible gas limit found")
+                            print(
+                                "Improvement difference is less than the sensitivity given, last feasible gas limit found")
                     else:
                         # no
                         if verbose_level >= VERBOSE_LEVEL_1:
-                            print("No improvement found, continue with interval " + str(interval) + " seconds")
+                            print("Improvement found, continue with interval " + str(interval) + " seconds")
                         gas += gas_step
                 else:
                     # no, we need more trials
@@ -413,11 +421,11 @@ def find_optimal_parameters():
                 # no
                 optimal = True
                 if verbose_level >= VERBOSE_LEVEL_1:
-                    print("Improvement less than the sensitivity given, peak found")
+                    print("Improvement difference is less than the sensitivity given, peak found")
             else:
                 # no
                 if verbose_level >= VERBOSE_LEVEL_1:
-                    print("No improvement found, continue execution")
+                    print("Improvement found, continue execution")
                 interval += interval_step
         else:
             # no
@@ -458,19 +466,18 @@ if __name__ == '__main__':
     #if sut_build:
     #    build = 0
     # Building SUT for the first time
-    print('Checking if the SUT needs to be built for the first time.')
+    print('Checking if the SUT infrastructure needs to be built.')
     try:
         run_file(
-            ['bash', _get_path(DEPLOY_SUT_PATH), str(config['eth_param']['nodeNumber']),
-             str(config['test_param']['maxInterval']),
-             str(config['test_param']['defaultGas']), '1',
+            ['bash', _get_path(DEPLOY_SUT_PATH), str(config['sut_config']['nodeNumber']),
+             str(config['tool_config']['maxInterval']),
+             str(config['tool_config']['defaultGas']), '1',
              '--no-user-output-enabled' if verbose_level == VERBOSE_LEVEL_0 else ''],
-            verbose=verbose_level == VERBOSE_LEVEL_2)
+            verbose=verbose_level >= VERBOSE_LEVEL_2)
     except Exception as e:
         print("Error executing Optibench tool. Ocurred an error when building the SUT.")
         exit(-1)
-
-    print('SUT successfully built')
+    print('SUT infrastructure successfully built')
 
     print('Starting calculation of optimal block interval and block gas limit for maximum throughput')
     result = find_optimal_parameters()
@@ -481,8 +488,11 @@ if __name__ == '__main__':
     throughput = result[key]
     interval = key.split(":")[0]
     gaslimit = key.split(":")[1]
-    exec_time = (time.time() - start_time)
+    exec_time = int(time.time() - start_time)
     run_file(['python', _get_path(AGGREGATE_RESULTS_PATH), "--interval", interval,
-              "--gaslimit", gaslimit, "--throughput", str(throughput),"--executiontime", str(exec_time)],verbose=verbose_level == VERBOSE_LEVEL_2)
+              "--gaslimit", gaslimit, "--throughput", str(throughput), "--executiontime", str(exec_time)],
+             verbose=verbose_level >= VERBOSE_LEVEL_2)
     print("Execution time: " + str(exec_time))
+    print(
+        "End of tool execution, please check the dashboard generated under /bin/analyzer/aggregated-results/dashboard.html.")
     exit(0)

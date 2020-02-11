@@ -1,9 +1,5 @@
 {
-  "eth_param": {
-    "nodeNumber": 2,
-    "templateName": "ethtemplate"
-  },
-  "test_param": {
+  "tool_config": {
     "maxGas": 15000000,
     "minGas": 2000000,
     "defaultGas": 10000000,
@@ -15,24 +11,30 @@
     "numberTrials": 2,
     "sensitivity": 0.05
   },
-  "run_caliper": {
+  "sut_config": {
+    "nodeNumber": 2,
+    "templateName": "ethtemplate",
+    "nodes": [
+      {
+        "Region": "europe-west1",
+        "Zone": "europe-west1-b"
+      },
+      {
+        "Region": "us-east1",
+        "Zone": "us-east1-b"
+      },
+      {
+        "Region": "asia-east1",
+        "Zone": "asia-east1-b"
+      }
+    ]
+  },
+  "workload_config": {
     "attempt": 3
   },
-  "USERNAME": "cloudproto",
-  "PASSWORD": "cloudproto",
-  "NETWORK_ID": 123,
-  "Nodes": [
-    {
-      "Region": "europe-west1",
-      "Zone": "europe-west1-b"
-    },
-    {
-      "Region": "us-east1",
-      "Zone": "us-east1-b"
-    },
-    {
-      "Region": "asia-east1",
-      "Zone": "asia-east1-b"
-    }
-  ]
+  "eth_config": {
+    "username": "cloudproto",
+    "password": "cloudproto",
+    "network_id": 123
+  }
 }
