@@ -107,7 +107,7 @@ if __name__ == '__main__':
     plt.xlabel('Gaslimit')
     plt.ylabel('Throughput')
     plt.legend([v[0] for v in data.groupby('blockInterval')['blockInterval']], title = 'Block interval')
-    plt.savefig('line_graph.png')
+    #plt.savefig('line_graph.png')
 # Create Interactive plots
 
     fig = go.Figure()
