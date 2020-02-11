@@ -37,19 +37,25 @@
                 <div class="btn-toolbar mb-2 mb-md-0">
                 </div>
             </div>
-            <div class="alert alert-dark" role="alert">
-                Maximum throughput of <strong> {throughput} TPS </strong> has been found with a block interval of
-                <strong>{interval} seconds</strong> and <strong>{gaslimit}</strong> block gas limit.<br></br>
-
-                Total execution time for benchmarking is <strong>{executiontime}</strong>
+            <div class="embed-responsive embed-responsive-21by9">
+                <iframe class="embed-responsive-item" src="bubbleplot.html"></iframe>
             </div>
-            <p align= "center"><iframe align="middle" width="600" height="600" src="bubbleplot.html"> </iframe></p>
-            <br></br>Above illustrated graph displays throughput for different values of block gas limit and block interval. This bubble chart with block gas limit on X-axis, block interval on Y-axis represents corresponding values of throughput through size of the bubble. To know the exact throughput value at a point, hover over the bubble.
-            <br></br>
-            <p align= "center"><iframe align="middle" width="600" height="600" src="linegraph.html"> </iframe></p>
-            <br></br>
-            The above graph is an interactive line plot. The drop down menu can be used to display the line plot for a particular block interval.
-            <br></br>
+            <p align="center">
+                <br></br>Above illustrated graph displays throughput for different values of block gas limit and block
+                interval. This bubble chart with block gas limit on X-axis, block interval on Y-axis represents
+                corresponding values of throughput through size of the bubble. To know the exact throughput value at a
+                point, hover over the bubble.
+                <br></br>
+            </p>
+            <div class="embed-responsive embed-responsive-21by9">
+                <iframe class="embed-responsive-item" src="linegraph.html"></iframe>
+            </div>
+            <p align="center">
+                <br></br>
+                The above graph is an interactive line plot. The drop down menu can be used to display the line plot for
+                a particular block interval.
+                <br></br>
+            </p>
             <h2>Benchmark Results</h2>
             Following table describes the observation from the benchmarking experiment.
             <br></br>
@@ -76,6 +82,7 @@
 <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
 <script>
       feather.replace()
+
 
 </script>
 </body>

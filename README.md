@@ -82,20 +82,22 @@ The script checks if the needed dependencies are installed or how to install the
 
 **Dependency**
 Python 3 libraries : pandas, lxml, matplotlib, numpy
+web3: 1.2.6 (it works from 1.2.0 version)
+pm2: 4.2.3
 Google SDK
 Geth
 Puppeth
-jq-command
-npm (Node.js)
-Caliper
-
+jq-command : https://stedolan.github.io/jq/
+npm (Node.js) : https://nodejs.org/en/download/ - to run caliper a bigger version than Node.js v8.X LTS  is needed
+Caliper : https://hyperledger.github.io/caliper/vLatest/installing-caliper/
 
 Note: If you have jq,npm, geth, puppeth and gcloud not installed, you will be provided with the links to follow the easy steps of installing them. This script does not provide their installation, because each user have different OS, and you need to download and install the packages depending on the environment you are working from.
 
 
-## Starting the tool
+## Executing the tool
 
 cd cp_ws_1920/bin
+
 
 python3 main.py (argument-1) (argument-2)
 
