@@ -33,8 +33,8 @@ Our goals were to achieve :
 │       ├── aggregate-html-reports.py
 │       ├── backup-old-results.py
 │       ├── calculate-optimal-values.py
-|	    ├── dashboard.html
-|	    ├── monitor.sh
+|       ├── dashboard.html
+|       ├── monitor.sh
 │       └── get-last-throughput
 |
 │── config
